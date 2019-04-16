@@ -5,6 +5,7 @@ from sphero_driver import sphero_driver
 import time
 import maneuver
 
+# parse Sphero address
 if len(sys.argv) != 2:
     print('USAGE:  python sphero.py SPHERO_ADDR')
     exit()
