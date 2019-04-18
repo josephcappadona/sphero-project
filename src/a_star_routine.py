@@ -11,10 +11,21 @@ r2d2 = r2d2_client.R2D2Client('127.0.0.1', 1337)
 
 # get course, find path
 G = courses.grid_1
-path = a_star.A_star(G, (0,0), (3,3))
-speed = 0x88  # half speed
+start = (0,0)
+goal = (3,0)
+path = a_star.A_star(G, start, goal)
+
+# ☑ =start node, ☒ =goal node
+# ☐ ══☐   ☐ ══☐
+# ║   ║   ║   ║
+# ☐   ☐ ══☐   ☐
+# ║   ║   ║   ║
+# ☐ ══☐   ☐ ══☐
+# ║       ║   ║
+# ☑   ☐ ══☐   ☒
 
 # traverse path
+speed = 0x88  # half speed
 maneuver.follow_path(r2d2, path, speed, dist_constant=0.75)
 r2d2.animate(10)
 r2d2.quit()
