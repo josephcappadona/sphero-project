@@ -2,15 +2,13 @@ from graph import Graph
 from itertools import product
 
 
-# ☑ =start node, ☒ =goal nodes
-#
-# ☒ ══☐   ☐ ══☒
-# ║   ║   ║   ║
-# ☐   ☐ ══☐   ☐
-# ║   ║   ║   ║
-# ☐ ══☐   ☐ ══☐
-# ║       ║   ║
-# ☑   ☐ ══☐   ☒
+# ☐ ══☐   ☐ ══☐ 
+# ║   ║   ║   ║ 
+# ☐   ☐ ══☐   ☐ 
+# ║   ║   ║   ║ 
+# ☐ ══☐   ☐ ══☐ 
+# ║       ║   ║ 
+# ☐   ☐ ══☐   ☐ 
 V1 = list(product(range(4), range(4)))
 E1 = [((0,0), (0,1)), ((0,1), (0,2)),
       ((0,1), (1,1)), ((0,2), (0,3)),
