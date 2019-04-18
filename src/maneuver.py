@@ -1,9 +1,7 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
 import math
 import time
 
-def follow_path(sphero, path, speed):
+def follow_path(sphero, path, speed, dist_constant=1):
 
     cur_pos = path[0]
     for next_pos in path[1:]:
@@ -11,7 +9,7 @@ def follow_path(sphero, path, speed):
         # compute distance and angle to next position
         print('%s -> %s' % (cur_pos, next_pos))
         dist, ang = compute_roll_parameters(cur_pos, next_pos)
-        rolled = roll(sphero, speed, ang, dist)
+        rolled = roll(sphero, speed, ang, dist*dist_constant)
         if not rolled:
             print('Something went wrong.')
             return False
