@@ -1,36 +1,36 @@
 #! /usr/bin/env python2
 # -*- coding: utf-8 -*-
 import sys
-from sphero_driver import sphero_driver
 import time
 import maneuver
+import r2d2_client
 
 # parse Sphero address
-if len(sys.argv) != 2:
-    print('USAGE:  python sphero.py SPHERO_ADDR')
+if len(sys.argv) != 3:
+    print('USAGE:  python sphero.py ADDR PORT')
     exit()
 addr = sys.argv[1]
+port = sys.argv[2]
 
 # connect to Sphero
-sphero = sphero_driver.Sphero()
-while True:
-    try:
-        sphero.connect()
-        break
-    except:
-        print('Trying to connect again.')
+r2d2 = r2d2_client.SpheroClient(addr, port)
 
 # pause for 1s
-sphero.roll(0, 0, None)
-time.sleep(0.5)
+time.sleep(1)
 
 # follow path (☑ =start node, ☒ =end node)
-#         ☐ ══☒
-#         ║
-#     ☐ ══☐
-#     ║
-# ☐ ══☐
-# ║
-# ☑
-path = [(0,0), (0,1), (1,1), (2,1), (2,2), (3,2), (3,3)]
-api_response = maneuver.follow_path(sphero, path)
+#         ☐ ⇒ ☒
+#         ⇑   ⇓
+#     ☐ ⇒ ☐   ⇓
+#     ⇑       ⇓
+# ☐ ⇒ ☐       ⇓
+# ⇑           ⇓
+# ☑ ⇐ ⇐ ⇐ ⇐ ⇐ ☐
+path = [(0,0), (0,1), (1,1), (1,2), (2,2), (2,3), (3,3), (3,0), (0,0)]
+speed = 0x44  # quarter speed
+
+complete = maneuver.follow_path(r2d2, path, speed)
+turned = r2d2.turn(180)
+animated = r2d2.animate(10)
+asleep = r2d2.sleep()
+quit = r2d2.quit()
