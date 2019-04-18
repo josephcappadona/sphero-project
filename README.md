@@ -46,3 +46,7 @@ python simple_routine.py
 ```
 python -m pytest tests/test_*.py
 ```
+
+## TODO
+* Add more sample routines
+* Document R2D2Client interface properly
