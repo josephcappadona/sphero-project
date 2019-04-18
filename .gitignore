@@ -1,3 +1,3 @@
 __pycache__/
 *.pyc
-sphero_ros/
+node_modules/

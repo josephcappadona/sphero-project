@@ -1,0 +1,4 @@
+exclude_patterns:
+- "lib/tests/"
+- "lib/lib/"
+- "examples/lib/"

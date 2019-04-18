@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["DOM"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "pretty": true,
+    "removeComments": false,
+    "sourceMap": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "es2017"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "test", "**/*.spec.ts"]
+}
