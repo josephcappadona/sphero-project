@@ -1,6 +1,4 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
-from Queue import PriorityQueue
+from queue import PriorityQueue
 from collections import defaultdict
 inf = float('inf')
 
