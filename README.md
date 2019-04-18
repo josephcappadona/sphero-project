@@ -1,7 +1,7 @@
 # sphero-project
 
 ## Video Example
-[https://www.youtube.com/watch?v=qjIhtkhbPT8\](R2D2 + A*)
+[R2D2 + A*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
 
 ## Setup
 ```
