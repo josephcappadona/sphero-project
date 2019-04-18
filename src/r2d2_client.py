@@ -20,11 +20,25 @@ class R2D2Client:
 
     def connect(self, addr, port, timeout=10):
         self.tn = Telnet(addr, port, timeout)
-        print(self.tn.read_until(b'\r\n').decode().strip())  # "Connected to R2D2 server."
-        print(self.tn.read_until(b'\r\n').decode().strip())  # "Looking for R2D2..."
-        print(self.tn.read_until(b'\r\n').decode().strip())  # "Connected to R2D2!"
-        print(self.tn.read_until(b'\r\n').decode().strip())  # "Ready for commands!"
-        self.awake = True
+
+        welcome = self.tn.read_until(b'\r\n', 15).decode().strip()
+        print(welcome)  # "Connected to R2D2 server."
+
+        looking = self.tn.read_until(b'\r\n', 10).decode().strip()
+        print(looking)  # "Looking for R2D2..."
+
+        connected = self.tn.read_until(b'\r\n', 10).decode().strip()
+        print(connected)  # "Connected to R2D2!"
+
+        ready = self.tn.read_until(b'\r\n', 10).decode().strip()
+        print(ready)  # "Ready for commands!"
+
+        if not (welcome and looking and connected and ready):
+            print('Could not connect to R2D2. Try restarting the server.')
+            self.tn.close()
+            self.tn = None
+        else:
+            self.awake = True
 
     def send_command(self, command, wait=0):
         print('Command: ' + command)
