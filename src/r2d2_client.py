@@ -117,6 +117,7 @@ class R2D2Client:
             response = self.send_command(command)
             return False
         except EOFError:
+            self.tn.close()
             print('Connection closed.')
             return True
 
