@@ -16,15 +16,16 @@ var server = net.createServer(async function(socket) {
     const r2d2 = await Scanner.findR2D2();
     if (r2d2) {
         socket.on('close', async function() {
-            await r2d2.playAnimation(2);
-            await r2d2.sleep();
-            await r2d2.destroy();
+            try { await r2d2.destroy(); }
+                catch { console.log('Exception caught while destroying r2d2.'); };
+            try { await socket.destroy(); }
+                catch { console.log('Exception caught while destroying socket.'); };
         });
         socket.write('Connected to R2D2!\r\n');
         await r2d2.wake();
         await r2d2.setStance(2);
-        await r2d2.playAnimation(1);
-        sleep(5000)
+        await r2d2.playAnimation(2);
+        sleep(3000)
         socket.write('Ready for commands!\r\n');
         socket.on('data', async function(buffer) {
             var command_str = buffer.toString().trim();
@@ -47,6 +48,7 @@ var server = net.createServer(async function(socket) {
                     await r2d2.rollTime(speed, angle, time, []);
                     socket.write('Done rolling.\r\n');
                 } else if (command[0] == 'quit') {
+                    await r2d2.destroy();
                     await socket.destroy();
                     console.log('Socket destroyed.');
                 } else if (command[0] == 'battery') {
