@@ -1,5 +1,8 @@
 # sphero-project
 
+## Video Example
+[R2D2 + A*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
+
 ## Setup
 ```
 git clone https://github.com/josephcappadona/sphero-project.git
