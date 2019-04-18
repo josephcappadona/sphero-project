@@ -13,7 +13,7 @@ addr = sys.argv[1]
 port = sys.argv[2]
 
 # connect to Sphero
-r2d2 = r2d2_client.SpheroClient(addr, port)
+r2d2 = r2d2_client.R2D2Client(addr, port)
 
 # get course, find path
 G = courses.grid_1

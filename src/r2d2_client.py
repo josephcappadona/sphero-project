@@ -3,7 +3,7 @@ import time
 import numpy as np
 from math import sin, cos, pi
 
-class SpheroClient:
+class R2D2Client:
     addr = '0.0.0.0'
     port = 0
     tn = None
