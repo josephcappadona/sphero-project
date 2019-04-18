@@ -3,8 +3,7 @@
 ## Setup
 ```
 git clone https://github.com/josephcappadona/sphero-project.git
-cd sphero-project
-cd spherov2.js
+cd sphero-project/spherov2.js
 yarn install
 ```
 
@@ -17,12 +16,7 @@ sudo yarn r2d2-server  # must use sudo to access bluetooth adapter
 ```
 
 ### Start Client
-Navigate to project's `src` directory:
-```
-cd sphero-project/src
-```
-
-Then, in `python` REPL:
+Navigate to `sphero-project/src`, and in `python` REPL:
 ```
 from r2d2_client import R2D2Client
 r2d2 = R2D2Client('127.0.0.1', 1337)
@@ -40,9 +34,12 @@ r2d2.sleep()
 r2d2.quit()
 ```
 
-## Tests
-
+or, from the command line:
 ```
-python -m pip install pytest
+python simple_routine.py
+```
+
+## Tests
+```
 python -m pytest tests/test_*.py
 ```
