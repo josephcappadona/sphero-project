@@ -5,15 +5,9 @@ import courses
 import a_star
 import maneuver
 
-# parse Sphero address
-if len(sys.argv) != 3:
-    print('USAGE:  python sphero.py ADDR PORT')
-    exit()
-addr = sys.argv[1]
-port = sys.argv[2]
 
 # connect to Sphero
-r2d2 = r2d2_client.R2D2Client(addr, port)
+r2d2 = r2d2_client.R2D2Client('127.0.0.1', 1337)
 
 # get course, find path
 G = courses.grid_1
