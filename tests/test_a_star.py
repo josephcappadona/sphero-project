@@ -1,5 +1,3 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
 from src.graph import Graph
 from src.a_star import A_star
 from itertools import product
