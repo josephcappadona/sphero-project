@@ -12,6 +12,6 @@
 
 * `maneuver.py` implements the `follow_path` method using the helper function `compute_roll_parameters`, which computes the distance and angle between the Sphero's current position and the next position on the path.
 
-* `simple_routine.py` commands an R2D2 to follow a simple zig-zag path using `maneuver.py`'s `follow_path` method.
+* `*_sample_routine.py` commands an R2D2/R2Q5 to follow a simple zig-zag path using `maneuver.py`'s `follow_path` method.
 
 * `a_star_routine.py` imports a sample graph from `courses.py`, chooses a start node and goal node, uses `a_star.py` to find the optimal path to the goal, and traverses that path with `maneuver.py`.
