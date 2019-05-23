@@ -2,7 +2,6 @@ from r2d2_client import R2D2Client
 r2d2 = R2D2Client('127.0.0.1', 1337)
 
 r2d2.animate(10)
-r2d2.roll(0x88, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
 r2d2.set_stance(2)  # transition to bipod
 
 from maneuver import follow_path
