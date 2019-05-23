@@ -39,5 +39,11 @@
     "lint-staged": "^8.0.5",
     "prettier": "^1.15.2",
     "typedoc": "0.14.2"
+  },
+  "dependencies": {
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+  },
+  "resolutions": {
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
   }
 }

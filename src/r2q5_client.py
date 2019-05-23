@@ -3,7 +3,7 @@ import time
 import numpy as np
 from math import sin, cos, pi
 
-class R2D2Client:
+class R2Q5Client:
     addr = '0.0.0.0'
     port = 0
     tn = None
@@ -13,7 +13,7 @@ class R2D2Client:
     angle = 0  # measured in degrees
     stance = 2
 
-    def __init__(self, addr='127.0.0.1', port=1337):
+    def __init__(self, addr='127.0.0.1', port=1338):
         self.connect(addr, port)
         self.addr = addr
         self.port = port
@@ -22,19 +22,19 @@ class R2D2Client:
         self.tn = Telnet(addr, port, timeout)
 
         welcome = self.tn.read_until(b'\r\n', 15).decode().strip()
-        print(welcome)  # "Connected to R2D2 server."
+        print(welcome)  # "Connected to R2Q5 server."
 
         looking = self.tn.read_until(b'\r\n', 10).decode().strip()
-        print(looking)  # "Looking for R2D2..."
+        print(looking)  # "Looking for R2Q5..."
 
         connected = self.tn.read_until(b'\r\n', 10).decode().strip()
-        print(connected)  # "Connected to R2D2!"
+        print(connected)  # "Connected to R2Q5!"
 
         ready = self.tn.read_until(b'\r\n', 10).decode().strip()
         print(ready)  # "Ready for commands!"
 
         if not (welcome and looking and connected and ready):
-            print('Could not connect to R2D2. Try restarting the server.')
+            print('Could not connect to R2Q5. Try restarting the server.')
             self.tn.close()
             self.tn = None
         else:
