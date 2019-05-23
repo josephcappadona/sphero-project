@@ -5,6 +5,9 @@
 
 ## Setup
 ```
+# install yarn if necessary
+sh install_yarn.sh
+
 git clone https://github.com/josephcappadona/sphero-project.git
 cd sphero-project/spherov2.js
 yarn install
