@@ -42,8 +42,10 @@ r2d2.quit()
 
 or, from the command line:
 ```
-python simple_routine.py
+python r2d2_sample_routine.py
 ```
+
+There is also an equivalent server, client, and routine for R2Q5: `r2q5-server`, `r2q5_client.py`, `r2q5_sample_routine.py`
 
 ## Tests
 ```
