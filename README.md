@@ -6,7 +6,7 @@
 ## Setup
 ```
 # install yarn if necessary
-sh install_yarn.sh
+bash install_yarn_mac.sh
 
 git clone https://github.com/josephcappadona/sphero-project.git
 cd sphero-project/spherov2.js
