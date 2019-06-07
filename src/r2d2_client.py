@@ -12,6 +12,7 @@ class R2D2Client:
     position = np.zeros(2)  # measured in meters, accurate to within a few centimeters
     angle = 0  # measured in degrees
     stance = 2
+    light = (0, 0, 0) #initial (r, g, b) values
 
     def __init__(self, addr='127.0.0.1', port=1337):
         self.connect(addr, port)
@@ -153,3 +154,20 @@ class R2D2Client:
         except ValueError:
             return False
 
+    def light_color(self, r = 0, g = 0, b = 0):
+        r = min(max(0, r), 255)  # 0 <= speed <= 255
+        g = min(max(0, g), 255)  # 0 <= speed <= 255
+        b = min(max(0, b), 255)  # 0 <= speed <= 255
+
+        # prepare to roll
+        if not self.awake:  # if we are not awake
+            woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
+
+        command = 'set_main_led_color %d %d %d' % (r, g, b)
+        response = self.send_command(command, wait=1)
+        if response == 'Main LED set.':
+            # update position vector
+            self.light = (r, g, b)
+            return True
+        else:
+            return False
