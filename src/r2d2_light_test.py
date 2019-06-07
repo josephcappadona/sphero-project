@@ -12,3 +12,6 @@ r2d2.light_color(255, 211, 0)  #yellow
 r2d2.light_color(255, 0, 0) #red
 r2d2.light_color(0, 255, 0) #green
 r2d2.light_color(0, 0, 255) #blue
+
+r2d2.sleep()
+r2d2.quit()
