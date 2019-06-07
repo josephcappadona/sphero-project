@@ -7,6 +7,7 @@
 ```
 # setup node
 bash setup_node_mac.sh
+#test
 
 git clone https://github.com/josephcappadona/sphero-project.git
 cd sphero-project/spherov2.js
