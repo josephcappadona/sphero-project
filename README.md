@@ -3,7 +3,7 @@
 ## Video Example
 [R2D2 + A*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
 
-## Setup
+## Setup youe Mac
 ```
 # setup node
 bash setup_node_mac.sh
