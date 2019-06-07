@@ -6,6 +6,7 @@
 ## Setup
 ```
 # setup node
+# TODO: the setup_node_mac.sh is done.
 bash setup_node_mac.sh
 
 git clone https://github.com/josephcappadona/sphero-project.git
