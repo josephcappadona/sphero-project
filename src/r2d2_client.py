@@ -12,7 +12,8 @@ class R2D2Client:
     position = np.zeros(2)  # measured in meters, accurate to within a few centimeters
     angle = 0  # measured in degrees
     stance = 2
-    light = (0, 0, 0) #initial (r, g, b) values
+    main_light = (0, 0, 0) #initial (r, g, b) values
+    back_light = (0, 0, 0) #initial (r, g, b) values
 
     def __init__(self, addr='127.0.0.1', port=1337):
         self.connect(addr, port)
@@ -154,20 +155,59 @@ class R2D2Client:
         except ValueError:
             return False
 
-    def light_color(self, r = 0, g = 0, b = 0):
-        r = min(max(0, r), 255)  # 0 <= speed <= 255
-        g = min(max(0, g), 255)  # 0 <= speed <= 255
-        b = min(max(0, b), 255)  # 0 <= speed <= 255
+    #return the rgb values of the color, if it exists
+    #else, return the input rgb values
+    def color_to_rgb(self, color, r, g, b):
+      if color == "black":
+        return 0, 0, 0
+      elif color == "white":
+        return 255, 255, 255
+      elif color == "red":
+        return 255, 0, 0
+      elif color == "orange":
+        return 255,165,0
+      elif color == "yellow":
+        return 255,255,0
+      elif color == "green":
+        return 0,128,0
+      elif color == "blue":
+        return 0,0,255
+      elif color == "purple":
+        return 128,0,128
+      else:
+        #make sure the input values are valid
+        r = min(max(0, r), 255) 
+        g = min(max(0, g), 255)  
+        b = min(max(0, b), 255)  
+        return r, g, b
 
-        # prepare to roll
+    def main_light_color(self, r = 0, g = 0, b = 0, color = ""):
+        r, g, b = self.color_to_rgb(color, r, g, b)
+
         if not self.awake:  # if we are not awake
-            woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
+            woke = self.wake()  # then wake preemptively 
 
         command = 'set_main_led_color %d %d %d' % (r, g, b)
         response = self.send_command(command, wait=1)
         if response == 'Main LED set.':
-            # update position vector
-            self.light = (r, g, b)
+            # update light vector
+            self.main_light = (r, g, b)
             return True
         else:
             return False
+
+    def front_light_color(self, r = 0, g = 0, b = 0, color = ""):
+        r, g, b = self.color_to_rgb(color, r, g, b)
+
+        if not self.awake:  # if we are not awake
+            woke = self.wake()  # then wake preemptively 
+
+        command = 'set_back_led %d %d %d' % (r, g, b)
+        response = self.send_command(command, wait=1)
+        if response == 'Back LED set.':
+            # update light vector
+            self.back_light = (r, g, b)
+            return True
+        else:
+            return False
+    
