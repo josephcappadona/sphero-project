@@ -61,7 +61,7 @@ class R2D2Client:
 
     def roll(self, speed, angle, time): 
         #speed = min(max(0, speed), 255)  # 0 <= speed <= 255
-        speed = min(255, speed * 255)  # 0.0 <= speed <= 1.0
+        speed = min(255, (speed * 255))  # 0.0 <= speed <= 1.0
         angle = angle % 360  # 0 <= angle < 360
         time = max(0, time)  # time >= 0
 
@@ -172,7 +172,3 @@ class R2D2Client:
             return True
         else:
             return False
-
-
-#TO DO
-    def has_collided(self):
