@@ -172,3 +172,7 @@ class R2D2Client:
             return True
         else:
             return False
+
+
+#TO DO
+    def has_collided(self):
