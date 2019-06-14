@@ -1,5 +1,5 @@
 from r2d2_client import R2D2Client
-r2d2 = R2D2Client()
+r2d2 = R2D2Client('127.0.0.1', 1337)
 
 #check that the robot is connected
 r2d2.animate(10)
