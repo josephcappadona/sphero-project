@@ -181,7 +181,7 @@ class R2D2Client:
         if not self.awake:  # if we are not awake
             woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
 
-        command = 'set_back_led %d %d %d' % (i)
+        command = 'set_back_led %d' % (i)
         response = self.send_command(command, wait=1)
         if response == 'Back LED set.':
             # update position vector
