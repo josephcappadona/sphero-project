@@ -13,6 +13,7 @@ class R2D2Client:
     angle = 0  # measured in degrees
     stance = 2
     light = (0, 0, 0) #initial (r, g, b) values
+    intensity = 0 #intensity of back_ligh_LED
 
     def __init__(self, addr='127.0.0.1', port=1337):
         self.connect(addr, port)
@@ -173,20 +174,18 @@ class R2D2Client:
         else:
             return False
 
-    def back_light_color(self, r = 0, g = 0, b = 0):
-        r = min(max(0, r), 255)  # 0 <= speed <= 255
-        g = min(max(0, g), 255)  # 0 <= speed <= 255
-        b = min(max(0, b), 255)  # 0 <= speed <= 255
+    def back_light_color(self, i = 0):
+        i = min(max(0, i), 255)  # 
 
         # prepare to roll
         if not self.awake:  # if we are not awake
             woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
 
-        command = 'set_back_led %d %d %d' % (r, g, b)
+        command = 'set_back_led %d %d %d' % (i)
         response = self.send_command(command, wait=1)
-        if response == 'Main LED set.':
+        if response == 'Back LED set.':
             # update position vector
-            self.light = (r, g, b)
+            self.intensity = (r, g, b)
             return True
         else:
             return False
