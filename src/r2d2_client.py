@@ -191,4 +191,4 @@ class R2D2Client:
         else:
             return False
 
-    def has_collided(self)
+
