@@ -174,7 +174,7 @@ class R2D2Client:
         else:
             return False
 
-    def back_light_color(self, i = 0):
+    def back_light_intensity(self, i = 0):
         i = min(max(0, i), 255)  # 
 
         # prepare to roll
