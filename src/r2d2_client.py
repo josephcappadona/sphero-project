@@ -185,7 +185,7 @@ class R2D2Client:
         response = self.send_command(command, wait=1)
         if response == 'Back LED set.':
             # update position vector
-            self.intensity = (r, g, b)
+            self.intensity = (i)
             return True
         else:
             return False
