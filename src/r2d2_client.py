@@ -172,3 +172,23 @@ class R2D2Client:
             return True
         else:
             return False
+
+       def back_light_color(self, r = 0, g = 0, b = 0):
+        r = min(max(0, r), 255)  # 0 <= speed <= 255
+        g = min(max(0, g), 255)  # 0 <= speed <= 255
+        b = min(max(0, b), 255)  # 0 <= speed <= 255
+
+        # prepare to roll
+        if not self.awake:  # if we are not awake
+            woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
+
+        command = 'set_back_led %d %d %d' % (r, g, b)
+        response = self.send_command(command, wait=1)
+        if response == 'Main LED set.':
+            # update position vector
+            self.light = (r, g, b)
+            return True
+        else:
+            return False
+
+    def has_collided(self)
