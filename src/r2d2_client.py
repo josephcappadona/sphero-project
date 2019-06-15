@@ -173,7 +173,7 @@ class R2D2Client:
         else:
             return False
 
-       def back_light_color(self, r = 0, g = 0, b = 0):
+    def back_light_color(self, r = 0, g = 0, b = 0):
         r = min(max(0, r), 255)  # 0 <= speed <= 255
         g = min(max(0, g), 255)  # 0 <= speed <= 255
         b = min(max(0, b), 255)  # 0 <= speed <= 255
