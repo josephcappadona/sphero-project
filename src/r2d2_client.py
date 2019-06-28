@@ -14,6 +14,7 @@ class R2D2Client:
     stance = 2
     main_light = (0, 0, 0) #initial (r, g, b) values
     back_light = 0 #initial intensity value
+    head_angle = 0
 
     def __init__(self, addr='127.0.0.1', port=1337):
         self.connect(addr, port)
@@ -210,3 +211,19 @@ class R2D2Client:
             return True
         else:
             return False
+
+    def rotate_head(self, angle = 0):
+      #the robot physically cannot turn between -160 and -180
+      angle = min(max(-160, angle), 180) 
+
+      if not self.awake:  # if we are not awake
+            woke = self.wake()  # then wake preemptively 
+      
+      command = 'turn_dome %d' % (angle,)
+      response = self.send_command(command, wait=1)
+      if response == 'Back LED set.':
+          # update head angle
+          self.head_angle = angle
+          return True
+      else:
+          return False
