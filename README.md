@@ -5,11 +5,17 @@
 
 ## Setup
 ```
-# setup node
-bash setup_node_mac.sh
-
+# clone this repo
 git clone https://github.com/josephcappadona/sphero-project.git
-cd sphero-project/spherov2.js
+cd sphero-project
+
+# setup node.js
+cd src
+bash setup_node_mac.sh
+cd ..
+
+# install JS packages
+cd spherov2.js
 yarn install
 ```
 
@@ -18,40 +24,43 @@ yarn install
 ### Start Server
 ```
 cd sphero-project/spherov2.js/examples
-sudo yarn r2d2-server  # must use sudo to access bluetooth adapter
+sudo yarn server  # must use sudo to access bluetooth adapter
 ```
 
 ### Start Client
 Navigate to `sphero-project/src`, and in `python` REPL:
 ```
-from r2d2_client import R2D2Client
-r2d2 = R2D2Client('127.0.0.1', 1337)
+from client import DroidClient
+droid = DroidClient()
 
-r2d2.animate(10)
-r2d2.roll(0x88, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
-r2d2.set_stance(2)  # transition to bipod
+droid.connect_to_droid('D2-2A86')
+# or droid.connect_to_R2D2()
+# or droid.connect_to_R2Q5()
+# or droid.connect_to_any()
+
+droid.animate(10)
+droid.roll(0x88, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
+droid.set_stance(2)  # transition back to bipod
 
 from maneuver import follow_path
 path = [(0,0), (0,1), (1,1), (1,2), (2,2), (2,3), (3,3), (3,0), (0,0)]
-follow_path(r2d2, path, 0x88, scale_dist=0.5)
+follow_path(droid, path, 0x88, scale_dist=0.5)
 
-r2d2.turn(0)
-r2d2.sleep()
-r2d2.quit()
+droid.turn(0)
+droid.sleep()
+droid.quit()
 ```
 
-or, from the command line:
-```
-python r2d2_sample_routine.py
-```
 
-There is also an equivalent server, client, and routine for R2Q5: `r2q5-server`, `r2q5_client.py`, `r2q5_sample_routine.py`
+## Development
 
-## Tests
+Should you change any of the `spherov2.js/lib` files, you must rebuild the library:
+
 ```
-python -m pytest tests/test_*.py
+cd sphero-project/spherov2.js/lib
+yarn rebuild
 ```
 
 ## TODO
-* Add more sample routines
-* Document R2D2Client interface properly
+
+* document interface properly

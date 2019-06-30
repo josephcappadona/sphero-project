@@ -12,7 +12,7 @@
   },
   "scripts": {
     "watch": "watch 'yarn prepublishOnly' src",
-    "prepublishOnly": "echo 'Compiling...';rm -fR dist; tsc; echo 'DONE';",
+    "rebuild": "echo 'Compiling...';rm -fR dist; tsc; echo 'DONE';",
     "debug": "ts-node --inspect-brk src/index.ts",
     "start": "ts-node src/index.ts",
     "test": "jest"

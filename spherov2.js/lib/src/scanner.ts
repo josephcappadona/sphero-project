@@ -31,7 +31,7 @@ const discover = async (
       toys.push({ ...toyAdvertisement, peripheral: p });
       // tslint:disable-next-line:no-console
       console.log(
-        `name: ${toyAdvertisement.name}, uuid: ${uuid}, mac-address: ${
+        `name: ${toyAdvertisement.name}, NAME: ${p.advertisement.localName}, uuid: ${uuid}, mac-address: ${
           p.address
         }`
       );
@@ -94,9 +94,12 @@ export const find = async <T extends Core>(
   name?: string
 ) => {
   const discovered = await findToys([toyType]);
-  const discoveredItem: IToyDiscovered =
-    discovered.find(item => item.peripheral.advertisement.localName === name) ||
-    discovered[0];
+  var discoveredItem: IToyDiscovered;
+  if (name === undefined) {
+      discoveredItem = discovered[0];
+  } else {
+      discoveredItem = discovered.find(item => item.peripheral.advertisement.localName === name)
+  }
 
   if (!discoveredItem) {
     // tslint:disable-next-line:no-console
@@ -143,11 +146,19 @@ export const findR2D2 = async () => {
   return (await find(R2D2.advertisement)) as R2D2;
 };
 
+export const findR2D2ByName = async (name: string) => {
+  return (await find(R2D2.advertisement, name)) as R2D2;
+};
+
 /**
  * Searches R2Q5 toys, starts the first one that was found and returns it
  */
 export const findR2Q5 = async () => {
   return (await find(R2Q5.advertisement)) as R2Q5;
+};
+
+export const findR2Q5ByName = async (name: string) => {
+  return (await find(R2Q5.advertisement, name)) as R2Q5;
 };
 
 /**
