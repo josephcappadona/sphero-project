@@ -39,7 +39,7 @@ droid.connect_to_droid('D2-2A86')
 # or droid.connect_to_any()
 
 droid.animate(10)
-droid.roll(0x88, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
+droid.roll(0.5, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
 droid.set_stance(2)  # transition back to bipod
 
 from maneuver import follow_path

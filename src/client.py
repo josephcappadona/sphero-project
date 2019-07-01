@@ -107,7 +107,7 @@ class DroidClient:
             return False
 
     def roll(self, speed, angle, time): 
-        speed = min(max(0, speed), 255)  # 0 <= speed <= 255
+        speed = int(max(0, speed)*255)  # 0 <= speed <= 255
         angle = angle % 360  # 0 <= angle < 360
         time = max(0, time)  # time >= 0
 
@@ -224,18 +224,14 @@ class DroidClient:
             return False
 
     def light_color(self, r = 0, g = 0, b = 0):
-        r = min(max(0, r), 255)  # 0 <= speed <= 255
-        g = min(max(0, g), 255)  # 0 <= speed <= 255
-        b = min(max(0, b), 255)  # 0 <= speed <= 255
-
-        # prepare to roll
-        if not self.awake:  # if we are not awake
-            woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
+        r = min(max(0, r), 255)  # 0 <= r <= 255
+        g = min(max(0, g), 255)  # 0 <= g <= 255
+        b = min(max(0, b), 255)  # 0 <= b <= 255
 
         command = 'set_main_led_color %d %d %d' % (r, g, b)
         response = self.send_and_receive(command, wait=1)
         if response == 'Main LED set.':
-            # update position vector
+            # update light values
             self.light = (r, g, b)
             return True
         else:
