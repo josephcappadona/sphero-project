@@ -32,6 +32,7 @@ Navigate to `sphero-project/src`, and in `python` REPL:
 ```
 from client import DroidClient
 droid = DroidClient()
+droid.scan()
 
 droid.connect_to_droid('D2-2A86')
 # or droid.connect_to_R2D2()
