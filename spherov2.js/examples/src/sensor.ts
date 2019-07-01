@@ -55,7 +55,7 @@ const main = async () => {
   }
 
   // Example to find a sphereo mini with a certain name
-  const sphero = await Scanner.findSpheroMiniByName('SM-3F7D');
+  const sphero = await Scanner.findR2Q5();
 
   if (sphero) {
     await sphero.configureSensorStream();

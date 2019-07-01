@@ -13,7 +13,11 @@ class DroidClient:
     position = np.zeros(2)  # measured in meters, accurate to within a few centimeters
     angle = 0  # measured in degrees
     stance = 2
-    light = (0, 0, 0) #initial (r, g, b) values
+    waddling = False
+    front_LED_color = (0, 0, 0)
+    back_LED_color = (0, 0, 0)
+    logic_display_intensity = 0
+    holo_projector_intensity = 0
 
     def __init__(self, autoconnect=True):
         if autoconnect:
@@ -97,6 +101,28 @@ class DroidClient:
         else:
             return False
 
+    def wake(self):
+        command = 'wake'
+        response = self.send_and_receive(command, wait=1)
+        if response == 'Awake.':
+            self.awake = True
+            self.angle = 0
+            self.stance = 2
+            return True
+        else:
+            return False
+
+    def sleep(self):
+        command = 'sleep'
+        response = self.send_and_receive(command, wait=1)
+        if response == 'Asleep.':
+            self.awake = False
+            self.angle = 0
+            self.stance = 2
+            return True
+        else:
+            return False
+
     def set_stance(self, stance):
         command = 'set_stance %d' % stance
         response = self.send_and_receive(command, wait=2)  # takes about 2sec to change stance
@@ -151,30 +177,94 @@ class DroidClient:
         response = self.send_and_receive(command, wait=wait)  # user should adjust `wait` based on animation
         return response == 'Animation complete.'
 
-    def sleep(self):
-        command = 'sleep'
-        response = self.send_and_receive(command, wait=1)
-        if response == 'Asleep.':
-            self.awake = False
-            self.angle = 0
-            self.stance = 2
+    def set_waddle(self, waddle): # waddle = True/False
+        waddleID = int(waddle) 
+
+        command = 'set_waddle %d' % waddleID
+        response = self.send_and_receive(command)
+        if response == 'Waddle set.':
+            self.waddle = waddle
             return True
         else:
             return False
 
-    def wake(self):
-        command = 'wake'
+    def play_sound(self, soundID, wait=4):
+        
+        command = 'play_sound %d' % soundID
+        response = self.send_and_receive(command, wait=wait)
+        if response:
+
+
+    def set_front_LED_colors(self, r, g, b): # 0 <= r,g,b <= 255
+
+        command = 'set_front_led_color %d %d %d' % (r, g, b)
         response = self.send_and_receive(command, wait=1)
-        if response == 'Awake.':
-            self.awake = True
-            self.angle = 0
-            self.stance = 2
+
+        if response == 'Front LED set.':
+            self.front_LED_color = (r, g, b)
             return True
         else:
+            return False
+
+    def set_back_LED_colors(self, r, g, b): # 0 <= r,g,b <= 255
+
+        command = 'set_back_led_color %d %d %d' % (r, g, b)
+        response = self.send_and_receive(command, wait=1)
+
+        if back_response == 'Back LED set.':
+            self.back_LED_color = (r, g, b)
+            return True
+        else:
+            return False
+
+    def set_holo_projector_intensity(self, intensity):
+        intensity = intensity
+        command = 'set_holo_intensity %d' % intensity
+        response = self.send_and_receive(command)
+        if response == 'Holo projector intensity set.':
+            self.holo_projector_intensity = intensity
+            return True
+        else:
+            return False
+
+    def set_logic_display_intensity(self, intensity):
+        intensity = intensity
+        command = 'set_logic_intensity %d' % intensity
+        response = self.send_and_receive(command)
+        if response == 'Logic display intensity set.':
+            self.holo_projector_intensity = intensity
+            return True
+        else:
+            return False
+
+    def battery(self):
+        command = 'battery'
+        response = self.send_and_receive(command)
+        try:
+            _ = float(response)
+            return True
+        except ValueError:
+            return False
+
+    def app_version(self):
+        command = 'version'
+        response = self.send_and_receive(command)
+        try:
+            _ = float(response)
+            return True
+        except ValueError:
             return False
 
     def help(self):
         command = 'help'
+        response = self.send_and_receive(command)
+        if response:
+            return True
+        else:
+            return False
+
+    def disconnect(self):
+        command = 'disconnect'
         response = self.send_and_receive(command)
         if response:
             return True
@@ -196,43 +286,3 @@ class DroidClient:
     def close(self):
         return self.quit()
 
-    def disconnect(self):
-        command = 'disconnect'
-        response = self.send_and_receive(command)
-        if response:
-            return True
-        else:
-            return False
-
-
-    def battery(self):
-        command = 'battery'
-        response = self.send_and_receive(command)
-        try:
-            _ = float(response)
-            return True
-        except ValueError:
-            return False
-
-    def app_version(self):
-        command = 'version'
-        response = self.send_and_receive(command)
-        try:
-            _ = float(response)
-            return True
-        except ValueError:
-            return False
-
-    def light_color(self, r = 0, g = 0, b = 0):
-        r = min(max(0, r), 255)  # 0 <= r <= 255
-        g = min(max(0, g), 255)  # 0 <= g <= 255
-        b = min(max(0, b), 255)  # 0 <= b <= 255
-
-        command = 'set_main_led_color %d %d %d' % (r, g, b)
-        response = self.send_and_receive(command, wait=1)
-        if response == 'Main LED set.':
-            # update light values
-            self.light = (r, g, b)
-            return True
-        else:
-            return False

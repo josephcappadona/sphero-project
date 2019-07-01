@@ -2,17 +2,22 @@ COMMAND HELP MENU
 
 Before connecting:
     scan                            Returns a list of the available droids.
+    connect                         Attempts to connect to a random droid.
+    connect R2D2|R2Q5               Attempts to connect to a random R2D2/R2Q5.
     connect NAME                    Attempts to connect to droid with name NAME.
 
 After connecting:
     roll SPEED HEADING TIME         Moves the droid in the direction of HEADING (0-359) at
-                                        speed SPEED (0-255) for time TIME.
+                                        speed SPEED (0-1) for time TIME.
     set_stance                      Changes droid's stance (tripod=1, bipod=2).
+    set_waddle                      Enables/disables continuous waddling (start=1, stop=0).
     animate ID                      Droid acts out animation with id number ID.
-    play_audio ID                   Plays audio file with id number ID.
+    play_sound ID                   Plays sound with id number ID.
     turn_dome DEGREES               Rotates droid's dome DEGREES degrees clockwise (-180-180)
-    set_main_led_color R G B        Sets droid's main LED color (value range 0-255).
-    set_back_led INTENSITY          Sets the inensity of droid's back LED (value range 0-255).
+    set_front_led_color R G B       Sets droid's main LED color (value range 0-255).
+    set_back_led_color R G B        Sets droid's main LED color (value range 0-255).
+    set_holo_intensity I            Sets the intensity of droid's holo projector (value range 0-1).
+    set_logic_display_intensity I   Sets the intensity of droid's logic display (value range 0-1).
     wake                            Wakes droid up from sleep.
     sleep                           Puts droid to sleep, but maintains connection.
     battery                         Returns current battery voltage.

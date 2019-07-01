@@ -40,6 +40,12 @@ droid.connect_to_droid('D2-2A86')
 # or droid.connect_to_any()
 
 droid.animate(10)
+droid.set_logic_display_intensity(1)
+droid.set_holo_projector_intensity(1)
+droid.set_front_LED_color(255, 255, 0)
+droid.set_back_LED_color(0, 255, 255)
+droid.play_sound(10)
+
 droid.roll(0.5, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
 droid.set_stance(2)  # transition back to bipod
 

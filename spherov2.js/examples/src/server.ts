@@ -1,5 +1,6 @@
 import { Scanner, Stance, Utils } from 'spherov2.js';
 import { R2D2, R2Q5 } from 'spherov2.js';
+import { sounds_array } from 'spherov2.js';
 const net = require('net');
 const fs = require('fs');
 
@@ -178,7 +179,7 @@ var server = net.createServer(async function(socket) {
                     socket.write('Awake.\r\n');
 
                 } else if (command[0] == 'roll') {
-                    var speed = Number(command[1]);
+                    var speed = 255*Number(command[1]);
                     var angle = Number(command[2]);
                     var time = Number(command[3]);
 
@@ -208,17 +209,20 @@ var server = net.createServer(async function(socket) {
                     var version_str = version_map.major.toString() + '.' + version_map.minor.toString();
                     socket.write(version_str + '\r\n');
 
-                } else if (command[0] == 'set_main_led_color') {
+                } else if (command[0] == 'set_front_led_color') {
                     var r = Number(command[1]);
                     var g = Number(command[2]);
                     var b = Number(command[3]);
 
                     await droid.setMainLedColor(r, g, b);
-                    socket.write('Main LED set.\r\n');
+                    socket.write('Front LED set.\r\n');
 
-                } else if (command[0] == 'set_back_led_intensity') {
-                    var i = Number(command[1]);
-                    await droid.setBackLedIntensity(i);
+                } else if (command[0] == 'set_back_led_color') {
+                    var r = Number(command[1]);
+                    var g = Number(command[2]);
+                    var b = Number(command[3]);
+
+                    await droid.setBackLEDColor(r, g, b);
                     socket.write('Back LED set.\r\n');
 
                 } else if (command[0] == 'set_stance') {
@@ -233,15 +237,31 @@ var server = net.createServer(async function(socket) {
                     await droid.setStance(stance);
                     socket.write('Stance set.\r\n');
 
-                } else if (command[0] == 'play_audio') {
+                } else if (command[0] == 'play_sound') {
                     var audio_num = Number(command[1]);
-                    await droid.playAudioFile(audio_num);
-                    socket.write('Audio file played.\r\n');
+                    await droid.playSound(audio_num);
+                    socket.write('Sound (${sounds_array[audio_num].soundId}) played.\r\n');
 
                 } else if (command[0] == 'turn_dome') {
                     var angle = Number(command[1]);
                     await droid.turnDome(angle);
                     socket.write('Dome turned.\r\n');
+
+                } else if (command[0] == 'set_waddle') {
+                    var waddleID = (Number(command[1]) == 1) ? 3 : 0;
+                    
+                    await droid.setWaddle(waddleID);
+                    socket.write('Waddle set.\r\n');
+
+                } else if (command[0] == 'set_holo_intensity') {
+                    var intensity = 255*Number(command[1]);
+                    await droid.setHoloIntensity(intensity);
+                    socket.write('Holo projector intensity set.\r\n');
+
+                } else if (command[0] == 'set_logic_intensity') {
+                    var intensity = 255*Number(command[1]);
+                    await droid.setLogicDisplayIntensity(intensity);
+                    socket.write('Logic display intensity set.\r\n');
 
                 } else {
                     throw new Error('Illegal command.');
