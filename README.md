@@ -70,4 +70,7 @@ yarn rebuild
 
 ## TODO
 
+* implement GUI
 * document interface properly
+* move `spherov2.js` into a `lib` folder
+* create scripts to start the server for simplicity (?)
