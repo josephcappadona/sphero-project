@@ -193,6 +193,9 @@ class DroidClient:
         command = 'play_sound %d' % soundID
         response = self.send_and_receive(command, wait=wait)
         if response:
+            return True
+        else:
+            return False
 
 
     def set_front_LED_colors(self, r, g, b): # 0 <= r,g,b <= 255
