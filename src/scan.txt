@@ -1,0 +1,16 @@
+Response: Connected to Sphero server.
+Command: scan
+Response: Scanning for droids...
+Response: Done scanning. 2 droids found.
+
+R2D2s:
+	D2-2A86
+		address: d4-ef-a1-e9-2a-86
+		uuid: 1e6cd50cc9ab4aafb96323222510c8f9
+		rssi: -55
+
+R2Q5s:
+	Q5-5141
+		address: db-75-69-b1-51-41
+		uuid: fe3b358989ca4319bcd3d0414866274b
+		rssi: -51

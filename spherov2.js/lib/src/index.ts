@@ -14,5 +14,6 @@ export { Core } from './toys/core';
 export { Event } from './toys/core';
 export { Stance } from './toys/types';
 export { ICommandWithRaw } from './commands/types';
+export { sounds_array } from './commands/sounds'
 
 export { Toys, Scanner, Utils };

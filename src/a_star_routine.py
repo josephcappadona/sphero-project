@@ -1,19 +1,20 @@
 import sys
 import time
-import r2d2_client
+from client import DroidClient
 import courses
-import a_star
+from a_star import A_star
 import maneuver
 
 
 # connect to Sphero
-r2d2 = r2d2_client.R2D2Client('127.0.0.1', 1337)
+droid = DroidClient()
+droid.connect_to_R2D2()
 
 # get course, find path
 G = courses.grid_1
 start = (0,0)
 goal = (3,0)
-path = a_star.A_star(G, start, goal)
+path = A_star(G, start, goal)
 
 # ☑ =start node, ☒ =goal node
 # ☐ ══☐   ☐ ══☐
@@ -26,6 +27,6 @@ path = a_star.A_star(G, start, goal)
 
 # traverse path
 speed = 0x88  # half speed
-maneuver.follow_path(r2d2, path, speed, dist_constant=0.75)
-r2d2.animate(10)
-r2d2.quit()
+maneuver.follow_path(droid, path, speed, dist_constant=0.75)
+droid.animate(10)
+droid.quit()

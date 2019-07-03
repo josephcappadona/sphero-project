@@ -30,13 +30,14 @@
     "serve": "http-server .",
     "r2d2": "ts-node src/r2d2",
     "r2d2-server": "ts-node src/r2d2-server",
-    "r2q5-server": "ts-node src/r2q5-server"
+    "r2q5-server": "ts-node src/r2q5-server",
+    "server": "ts-node src/server"
   },
   "dependencies": {
     "bufferutil": "^4.0.1",
     "http-server": "^0.11.1",
     "net": "^1.0.2",
-    "spherov2.js": "0.0.9",
+    "spherov2": "file:./../../spherov2.js/lib",
     "tls": "^0.0.1",
     "ts-loader": "^5.3.3",
     "utf-8-validate": "^5.0.2",
