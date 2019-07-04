@@ -9,6 +9,9 @@
 git clone https://github.com/josephcappadona/sphero-project.git
 cd sphero-project
 
+# install python dependencies
+python3.7 -m pip install numpy pygame pynput
+
 # setup node.js
 cd src
 bash setup_node_mac.sh
@@ -28,7 +31,7 @@ sudo yarn server  # must use sudo to access bluetooth adapter
 ```
 
 ### Start Client
-Navigate to `sphero-project/src`, and in `python` REPL:
+Navigate to `sphero-project/src`, and in `python3.7` REPL:
 ```
 from client import DroidClient
 droid = DroidClient()
