@@ -2,6 +2,7 @@ from telnetlib import Telnet
 import time
 import numpy as np
 from math import sin, cos, pi
+import atexit
 
 class DroidClient:
     addr = '0.0.0.0'
@@ -20,6 +21,7 @@ class DroidClient:
     holo_projector_intensity = 0
 
     def __init__(self, autoconnect=True):
+        atexit.register(self.exit) # disconnect on quit if user did not manually disconnect
         if autoconnect:
             self.connect_to_server()
 
@@ -287,5 +289,8 @@ class DroidClient:
             return True
 
     def close(self):
+        return self.quit()
+
+    def exit(self):
         return self.quit()
 
