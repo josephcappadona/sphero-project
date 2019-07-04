@@ -198,7 +198,7 @@ class DroidClient:
             return False
 
 
-    def set_front_LED_colors(self, r, g, b): # 0 <= r,g,b <= 255
+    def set_front_LED_color(self, r, g, b): # 0 <= r,g,b <= 255
 
         command = 'set_front_led_color %d %d %d' % (r, g, b)
         response = self.send_and_receive(command, wait=1)
@@ -209,12 +209,12 @@ class DroidClient:
         else:
             return False
 
-    def set_back_LED_colors(self, r, g, b): # 0 <= r,g,b <= 255
+    def set_back_LED_color(self, r, g, b): # 0 <= r,g,b <= 255
 
         command = 'set_back_led_color %d %d %d' % (r, g, b)
         response = self.send_and_receive(command, wait=1)
 
-        if back_response == 'Back LED set.':
+        if response == 'Back LED set.':
             self.back_LED_color = (r, g, b)
             return True
         else:

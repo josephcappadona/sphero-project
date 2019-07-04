@@ -214,7 +214,7 @@ var server = net.createServer(async function(socket) {
                     var g = Number(command[2]);
                     var b = Number(command[3]);
 
-                    await droid.setMainLedColor(r, g, b);
+                    await droid.setFrontLEDColor(r, g, b);
                     socket.write('Front LED set.\r\n');
 
                 } else if (command[0] == 'set_back_led_color') {
@@ -240,7 +240,7 @@ var server = net.createServer(async function(socket) {
                 } else if (command[0] == 'play_sound') {
                     var audio_num = Number(command[1]);
                     await droid.playSound(audio_num);
-                    socket.write('Sound (${sounds_array[audio_num].soundId}) played.\r\n');
+                    socket.write(`Sound (${sounds_array[audio_num].soundId}) played.\r\n`);
 
                 } else if (command[0] == 'turn_dome') {
                     var angle = Number(command[1]);
