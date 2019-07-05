@@ -4,6 +4,17 @@
 [R2D2 + A*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
 
 ## Setup
+
+The following directions assume macOS. It also assumes homebrew and xcode cli tools.
+
+Check for xcode cli:
+```xcode-select --version```
+https://developer.apple.com/downloads/
+
+Check for homebrew:
+```brew -v```
+https://brew.sh/
+
 ```
 # clone this repo
 git clone https://github.com/josephcappadona/sphero-project.git
