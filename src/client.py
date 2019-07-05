@@ -3,6 +3,9 @@ import time
 import numpy as np
 from math import sin, cos, pi
 import atexit
+from threading import Timer
+from pynput import keyboard
+import utils
 
 class DroidClient:
     addr = '0.0.0.0'
@@ -19,6 +22,7 @@ class DroidClient:
     back_LED_color = (0, 0, 0)
     logic_display_intensity = 0
     holo_projector_intensity = 0
+    drive_mode = False
 
     def __init__(self, autoconnect=True):
         atexit.register(self.exit) # disconnect on quit if user did not manually disconnect
@@ -52,7 +56,14 @@ class DroidClient:
         time.sleep(wait)  # certain commands (like animations and turning) receive responses right away; let's wait so we don't accidentally interrupt them
 
     def wait_for_response(self, _print=True, timeout=15):
-        response = self.tn.read_until(b'\r\n', timeout).decode().strip()
+
+        while True:
+            response = self.tn.read_until(b'\r\n', timeout).decode().strip()
+            if response.startswith('Sensor Data:'):
+                handle_sensor_data(response)
+            else:
+                break
+
         if _print:
             print('Response: ' + response)
         return response
@@ -125,54 +136,67 @@ class DroidClient:
         else:
             return False
 
-    def set_stance(self, stance):
+    def set_stance(self, stance, **kwargs):
+        if self.stance == stance:
+            return True
         command = 'set_stance %d' % stance
-        response = self.send_and_receive(command, wait=2)  # takes about 2sec to change stance
+        response = self.send_and_receive(command, wait=2, **kwargs)  # takes about 2sec to change stance
         if response == 'Stance set.':
             self.stance = stance
             return True
         else:
             return False
 
-    def roll(self, speed, angle, time): 
-        speed = int(max(0, speed)*255)  # 0 <= speed <= 255
-        angle = angle % 360  # 0 <= angle < 360
-        time = max(0, time)  # time >= 0
+    def setup_for_roll(self, angle):
+        if not self.awake:
+            woke = self.wake()
+        if self.stance != 1:
+            stance_set = self.set_stance(1)
+        if angle != self.angle:
+            turned = self.turn(angle)
 
-        # prepare to roll
-        if not self.awake:  # if we are not awake
-            woke = self.wake()  # then wake preemptively so we don't waste roll time on waking
-        if self.stance != 1:  # if we are not in the correct stance
-            stance_set = self.set_stance(1)  # then change stance preemptively so we don't waste roll time changing stance
-        if angle != self.angle:  # if we are not facing the correct direction
-            turned = self.turn(angle)  # then turn preemptively so we don't waste roll time on turning
+    def update_position_vector(self, speed, angle, time):
+        dist = max(0, speed * time * 0.002 - 0.02)  # accurate to ~1cm
+        d_x = round(dist * sin((90-angle)*pi/180), 2)
+        d_y = round(dist * cos((90-angle)*pi/180), 2)
+        self.position += np.array([d_x, d_y])
 
-        command = 'roll %d %d %d' % (speed, angle, time*1000)
+
+    def roll_time(self, speed, angle, time, turn=False):
+        speed = speed           # 0 <= speed <= 1
+        angle = angle % 360     # 0 <= angle < 360
+        time = time             # time >= 0 (seconds)
+
+        if not turn:
+            self.setup_for_roll(angle)
+        
+        command = 'roll_time %d %d %d' % (speed, angle, time*1000)
         response = self.send_and_receive(command, wait=time)
         if response == 'Done rolling.':
-            # update position vector
-            dist = max(0, speed * time * 0.002 - 0.02)  # accurate to ~1cm
-            d_x = round(dist * sin((90-angle)*pi/180), 2)
-            d_y = round(dist * cos((90-angle)*pi/180), 2)
-            self.position += np.array([d_x, d_y])
-            return (self.awake or woke) and (self.stance == 1 or stance_set) and (self.angle == angle or turned)
+            self.update_position_vector(speed, angle, time)
+            self.angle = angle
+            return True
         else:
             return False
+
+    def roll_continuous(self, speed, angle, **kwargs):
+        speed = speed
+        angle = angle % 360
+
+        command = 'roll_continuous %g %d' % (speed, angle)
+        response = self.send_and_receive(command, **kwargs)
+        if response == 'Initializing rolling.':
+            self.angle = angle
+            return True
+        else:
+            return False
+    
+    def stop_roll(self):
+        self.roll_time(0, self.angle, 0)
 
     def turn(self, angle):
         angle = angle % 360  # 0 <= angle < 360
-        # prepare to turn
-        if not self.awake:  # if we are not awake
-            woke = self.wake()  # then wake preemptively so we don't waste turn time on waking
-        if self.stance != 1:  # if we are not in the correct stance
-            stance_set = self.set_stance(1)  # then change stance preemptively so we don't waste turn time changing stance
-        command = 'roll 0 %d 500' % angle  # takes about 0.5sec to turn 180deg
-        response = self.send_and_receive(command, wait=0.5)
-        if response == 'Done rolling.':
-            self.angle = angle
-            return (self.awake or woke) and (self.stance == 1 or stance_set)
-        else:
-            return False
+        return self.roll_time(0, angle, 0.5, turn=True)
 
     def animate(self, i, wait=3):
         command = 'animate %d' % i
@@ -272,17 +296,19 @@ class DroidClient:
         command = 'disconnect'
         response = self.send_and_receive(command)
         if response:
+            self.connected_to_droid = False
             return True
         else:
             return False
 
     def quit(self):
-        command = 'quit'
         try:
-            response = self.send_and_receive(command)
-            return False
-        except EOFError:
+            self.disconnect()
             self.tn.close()
+            return False
+        except (EOFError, AttributeError):
+            if self.tn:
+                self.tn.close()
             self.tn = None
             self.connected_to_droid = False
             print('Connection closed.')
@@ -293,4 +319,61 @@ class DroidClient:
 
     def exit(self):
         return self.quit()
+
+
+    def enter_drive_mode(self):
+        if not utils.is_sudo():
+            print('Drive mode requires super user privilege.')
+            return
+
+        self.drive_mode_speed = 0
+        self.drive_mode_angle = self.angle
+        self.drive_mode_shift = False
+      
+        if self.connected_to_droid:
+            print('\nPreparing for drive mode...\n')
+            self.set_stance(1, _print=False)
+            with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:
+                self.drive_mode = True
+                print('\nControls:\nUP = increase speed\nDOWN = decrease speed\nLEFT = adjust heading left\nRIGHT = adjust heading right\nHOLD SHIFT = adjust speed/heading more drastically\n\nReady for keyboard input...\n')
+                listener.join()
+                self.drive_mode = False
+        else:
+            print('You must connect to a droid before you can enter drive mode')
+
+    def on_press(self, key):
+        new_params = False
+        try:
+            #print('alphanum {0} pressed'.format(key.char))
+            if key.char == 's':
+                self.drive_mode_speed = 0
+                new_params = True
+
+        except AttributeError:
+            #print('special {0} pressed'.format(key))
+            speed_interval = 0.25 if self.drive_mode_shift else 0.1
+            turn_interval = 45 if self.drive_mode_shift else 15
+            if key == keyboard.Key.shift or key == keyboard.Key.shift_r:
+                self.drive_mode_shift = True
+            elif key == keyboard.Key.esc:
+                return False
+            elif key in utils.DIRECTION_KEYS:
+                if key == keyboard.Key.up:
+                    self.drive_mode_speed = min(self.drive_mode_speed + speed_interval, 1)
+                elif key == keyboard.Key.down:
+                    self.drive_mode_speed = max(self.drive_mode_speed - speed_interval, 0)
+                elif key == keyboard.Key.right:
+                    self.drive_mode_angle = (self.drive_mode_angle + turn_interval) % 360
+                elif key == keyboard.Key.left:
+                    self.drive_mode_angle = (self.drive_mode_angle - turn_interval) % 360
+                new_params = True
+                
+        if new_params:
+            self.roll_continuous(self.drive_mode_speed, self.drive_mode_angle, _print=False)
+        print()
+
+    def on_release(self, key):
+        #print('{0} released'.format(key))
+        if key == keyboard.Key.shift or key == keyboard.Key.shift_r:
+            self.drive_mode_shift = False
 

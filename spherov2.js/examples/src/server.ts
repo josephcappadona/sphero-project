@@ -48,7 +48,7 @@ var server = net.createServer(async function(socket) {
         }
 
         try {
-            if (droid === undefined) {
+            if (droid === undefined || command[0] == 'scan') {
                 if (command[0] == 'connect') {
                     if (command.length > 1) {
                         if (command[1] == 'R2D2') {
@@ -178,13 +178,20 @@ var server = net.createServer(async function(socket) {
                     await droid.wake();
                     socket.write('Awake.\r\n');
 
-                } else if (command[0] == 'roll') {
+                } else if (command[0] == 'roll_time') {
                     var speed = 255*Number(command[1]);
                     var angle = Number(command[2]);
                     var time = Number(command[3]);
 
                     await droid.rollTime(speed, angle, time, []);
                     socket.write('Done rolling.\r\n');
+
+                } else if (command[0] == 'roll_continuous') {
+                    var speed = 255*Number(command[1]);
+                    var angle = Number(command[2]);
+
+                    socket.write('Initializing rolling.\r\n');
+                    await droid.roll(speed, angle, []);
 
                 } else if (command[0] == 'quit' || command[0] == 'exit') {
                     await droid.sleep();
@@ -197,7 +204,7 @@ var server = net.createServer(async function(socket) {
                     await droid.sleep();
                     await droid.destroy();
                     console.log(`Disconnected ${socketID} from ${droidName}.`);
-                    socket.write(`Disconnected from ${droidName}`);
+                    socket.write(`Disconnected from ${droidName}.\r\n`);
                     droid = undefined;
 
                 } else if (command[0] == 'battery') {
