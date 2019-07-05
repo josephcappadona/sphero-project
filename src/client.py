@@ -380,6 +380,8 @@ class DroidClient:
                 
         if new_params:
             self.roll_continuous(self.drive_mode_speed, self.drive_mode_angle, _print=False)
+            print('Speed: %g' % self.drive_mode_speed)
+            print('Heading: %d' % self.drive_mode_angle)
         print()
 
     def on_release(self, key):
