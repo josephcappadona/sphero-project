@@ -80,7 +80,7 @@ droid.set_front_LED_color(255, 255, 0)
 droid.set_back_LED_color(0, 255, 255)
 droid.play_sound(10)
 
-droid.roll(0.5, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
+droid.roll_time(5, 180, .5) # drive at speed 5, at a 180deg heading, for .5 seconds
 droid.set_stance(2)  # transition back to bipod
 
 from maneuver import follow_path
