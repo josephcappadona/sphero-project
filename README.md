@@ -22,6 +22,22 @@ cd spherov2.js
 yarn install
 ```
 
+### Drive Mode
+
+Drive mode allows you to control a droid in real time using your keyboard. Due to security reasons, on Mac OS, a few steps are needed to set this up to allow Python to interpret keystrokes.
+
+1. Go to `System Preferences` -> `Security & Privacy` -> `Privacy tab` -> `Accessibility`.
+
+2. Click the lock in the bottom left and enter your password to make changes.
+
+3. Click the plus icon. Navigate to your Python 3.7 installation. This will likely be at `/Library/Frameworks/Python.framework/Versions/3.7/Python/`. If not, type `which python3.7` in Terminal to find the location (you will want the `Python` file at the same level as the `bin` folder you find). Click the `Python` file, then click `Open` in the bottom right.
+
+4. Click the plus icon again. Navigate to your terminal program. If you're using the default system terminal, this will be located at `/Applications/Utilities/Terminal`. Select the program, then click `Open` in the bottom right.
+
+5. Make sure both programs you added are checked, and click the lock in the bottom left to save changes.
+
+For usage, see the [Usage - Drive Mode](#usage-drive-mode).
+
 ## Usage
 
 ### Start Server
@@ -60,6 +76,30 @@ droid.turn(0)
 droid.sleep()
 droid.quit()
 ```
+
+<h4 id="usage-drive-mode">
+### Drive Mode
+</h4>
+
+Navigate to the project `src` folder and start up Python with **sudo**: `sudo python3.7`. You can then enter drive mode like this:
+```
+from client import DroidClient
+r2 = DroidClient()
+r2 = r2.connect_to_R2D2()
+r2.enter_drive_mode()
+```
+
+The controls are:
+```
+UP = increase speed 0.1
+DOWN = decrease speed 0.1
+LEFT = adjust heading to the left 15°
+RIGHT = adjust heading to the right 15°
+SHIFT = speed/heading modifier, changes speed adjustment to 0.25, changes angle adjustment to 45°
+S = stop droid (brings speed to 0)
+ESC = exit drive mode
+```
+
 
 
 ## Development
