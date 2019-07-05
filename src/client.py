@@ -324,7 +324,6 @@ class DroidClient:
     def exit(self):
         return self.quit()
 
-
     def enter_drive_mode(self):
         if not utils.is_sudo():
             print('Drive mode requires super user privilege.')
