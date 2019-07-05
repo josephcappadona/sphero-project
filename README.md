@@ -32,11 +32,15 @@ Drive mode allows you to control a droid in real time using your keyboard. Due t
 
 3. Click the plus icon. Navigate to your Python 3.7 installation. This will likely be at `/Library/Frameworks/Python.framework/Versions/3.7/Python/`. If not, type `which python3.7` in Terminal to find the location (you will want the `Python` file at the same level as the `bin` folder you find). Click the `Python` file, then click `Open` in the bottom right.
 
-4. Click the plus icon again. Navigate to your terminal program. If you're using the default system terminal, this will be located at `/Applications/Utilities/Terminal`. Select the program, then click `Open` in the bottom right.
+4. Click the plus icon again. Navigate to the same location as in Step 3, except this time, go into the `Resources` folder, select the `Python` application there, and click `Open` in the bottom right.
 
-5. Make sure both programs you added are checked, and click the lock in the bottom left to save changes.
+5. Click the plus icon again. Navigate to your terminal program. If you're using the default system terminal, this will be located at `/Applications/Utilities/Terminal`. Select the program, then click `Open` in the bottom right.
 
-For usage, see the [Usage - Drive Mode](#usage-drive-mode).
+6. Make sure both programs you added are checked, and click the lock in the bottom left to save changes.
+
+For usage, see the [Usage - Drive Mode](#usage-drive-mode) below.
+
+**Note**: If you use a terminal session manager such as `tmux`, you will also need to add that to `Accessibility` controls.
 
 ## Usage
 
@@ -93,14 +97,12 @@ The controls are:
 ```
 UP = increase speed 0.1
 DOWN = decrease speed 0.1
-LEFT = adjust heading to the left 15°
-RIGHT = adjust heading to the right 15°
-SHIFT = speed/heading modifier, changes speed adjustment to 0.25, changes angle adjustment to 45°
+LEFT = adjust heading left 15°
+RIGHT = adjust heading right 15°
+SHIFT = speed/heading adjustment modifier, changes speed adjustment to 0.25, changes heading adjustment to 45°
 S = stop droid (brings speed to 0)
 ESC = exit drive mode
 ```
-
-
 
 ## Development
 

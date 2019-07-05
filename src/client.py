@@ -23,6 +23,9 @@ class DroidClient:
     logic_display_intensity = 0
     holo_projector_intensity = 0
     drive_mode = False
+    drive_mode_spreed = None
+    drive_mode_angle = None
+    drive_mode_shift = None
 
     def __init__(self, autoconnect=True):
         atexit.register(self.exit) # disconnect on quit if user did not manually disconnect
@@ -305,7 +308,7 @@ class DroidClient:
         try:
             self.disconnect()
             self.tn.close()
-            return False
+            return True
         except (EOFError, AttributeError):
             if self.tn:
                 self.tn.close()
@@ -333,11 +336,17 @@ class DroidClient:
         if self.connected_to_droid:
             print('\nPreparing for drive mode...\n')
             self.set_stance(1, _print=False)
-            with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:
+            with keyboard.Listener(on_press=self.on_press, on_release=self.on_release, suppress=True) as listener:
                 self.drive_mode = True
-                print('\nControls:\nUP = increase speed\nDOWN = decrease speed\nLEFT = adjust heading left\nRIGHT = adjust heading right\nHOLD SHIFT = adjust speed/heading more drastically\n\nReady for keyboard input...\n')
+                print('\nControls:\n%s\n\n' % utils.get_drive_mode_controls_text())
+                print('Ready for keyboard input...\n')
                 listener.join()
+                print('Exiting drive move...\n')
                 self.drive_mode = False
+                self.drive_mode_speed = None
+                self.drive_mode_angle = None
+                self.drive_mode_shift = None
+                self.set_stance(2, _print=False)
         else:
             print('You must connect to a droid before you can enter drive mode')
 
@@ -356,6 +365,7 @@ class DroidClient:
             if key == keyboard.Key.shift or key == keyboard.Key.shift_r:
                 self.drive_mode_shift = True
             elif key == keyboard.Key.esc:
+                self.roll_continuous(0, self.drive_mode_angle, _print=False)
                 return False
             elif key in utils.DIRECTION_KEYS:
                 if key == keyboard.Key.up:
