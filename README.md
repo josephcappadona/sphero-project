@@ -22,7 +22,7 @@ cd spherov2.js
 yarn install
 ```
 
-### Drive Mode
+### Drive Mode Setup
 
 Drive mode allows you to control a droid in real time using your keyboard. Due to security reasons, on Mac OS, a few steps are needed to set this up to allow Python to interpret keystrokes.
 
