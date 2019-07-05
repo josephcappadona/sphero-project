@@ -17,8 +17,10 @@ cd src
 bash setup_node_mac.sh
 cd ..
 
-# install JS packages
-cd spherov2.js
+# compile the server library and dependencies
+cd spherov2.js/lib
+yarn rebuild
+cd ..
 yarn install
 ```
 
