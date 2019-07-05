@@ -306,8 +306,9 @@ class DroidClient:
 
     def quit(self):
         try:
-            self.disconnect()
-            self.tn.close()
+            if self.connected_to_droid:
+                self.disconnect()
+                self.tn.close()
             return True
         except (EOFError, AttributeError):
             if self.tn:
