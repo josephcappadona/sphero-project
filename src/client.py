@@ -167,6 +167,9 @@ class DroidClient:
         d_y = round(dist * cos((90-angle)*pi/180), 2)
         self.position += np.array([d_x, d_y])
 
+    def roll(self, speed, angle, time, turn=False):
+        return self.roll_time(speed, angle, time, turn=turn)
+
     def roll_time(self, speed, angle, time, turn=False):
         speed = speed           # 0 <= speed <= 1
         angle = angle % 360     # 0 <= angle < 360
