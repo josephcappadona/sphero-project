@@ -62,6 +62,32 @@ droid.turn(0)
 droid.sleep()
 droid.quit()
 ```
+
+### Drive Mode
+
+Drive mode allows you to drive your droid using your keyboard. Once you have the server running, you can start drive mode like this:
+
+```python
+from client import DroidClient
+droid = DroidClient()
+droid.connect_to_droid('D2-2A86')  # or other connect command
+droid.enter_drive_mode()  # droid will change stance to tripod and python will start accepting keystrokes
+droid.exit()
+```
+
+You can also run `python drive_mode.py` from the `src` directory, but be sure to change the connect command with the name of your droid.
+
+The controls for drive mode are:
+
+```
+UP = increase speed 0.1
+DOWN = decrease speed 0.1
+LEFT = adjust heading left 15°
+RIGHT = adjust heading right 15°
+S = stop droid (brings speed to 0)
+ESC = quit drive mode
+```
+
 ## Development
 
 Should you change any of the `spherov2.js/lib` files, you must rebuild the library:

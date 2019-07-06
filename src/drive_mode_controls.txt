@@ -2,8 +2,5 @@ UP = increase speed 0.1
 DOWN = decrease speed 0.1
 LEFT = adjust heading left 15°
 RIGHT = adjust heading right 15°
-HOLD SHIFT = speed/heading adjustment modifier,
-                changes speed adjustment to 0.25,
-                changes heading adjustment to 45°
 S = stop droid (brings speed to 0)
 ESC = quit drive mode

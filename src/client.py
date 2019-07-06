@@ -29,6 +29,7 @@ class DroidClient:
     drive_mode_spreed = None
     drive_mode_angle = None
     drive_mode_shift = None
+    continuous_roll_timer = None
 
     def __init__(self, autoconnect=True):
         atexit.register(self.exit) # disconnect on quit if user did not manually disconnect
@@ -170,7 +171,7 @@ class DroidClient:
     def roll(self, speed, angle, time, turn=False):
         return self.roll_time(speed, angle, time, turn=turn)
 
-    def roll_time(self, speed, angle, time, turn=False):
+    def roll_time(self, speed, angle, time, turn=False, **kwargs):
         speed = speed           # 0 <= speed <= 1
         angle = angle % 360     # 0 <= angle < 360
         time = time             # time >= 0 (seconds)
@@ -179,12 +180,12 @@ class DroidClient:
             self.setup_for_roll(angle)
         
         command = 'roll_time %g %d %d' % (speed, angle, time*1000)
-        response = self.send_and_receive(command, wait=time)
+        response = self.send_and_receive(command, wait=time, **kwargs)
         if response == 'Done rolling.':
             #self.update_position_vector(speed, angle, time)
             self.angle = angle
             if speed == 0:
-                self.roll_continuous = False
+                self.is_continuous_roll = False
                 self.roll_continuous_params = None
             return True
         else:
@@ -199,21 +200,28 @@ class DroidClient:
         if response == 'Initializing rolling.':
             self.angle = angle
             if speed > 0:
-                self.roll_continuous = True
+                self.is_continuous_roll = True
                 self.roll_continuous_params = (speed, angle)
-                Timer(1.0, self.restart_continuous_roll).start()
+                self.continuous_roll_timer = Timer(1.0, self.restart_continuous_roll)
+                self.continuous_roll_timer.start()
             return True
         else:
             return False
 
     def restart_continuous_roll(self):
-        if self.roll_continuous:
+        if self.continuous_roll_timer:
+            self.continuous_roll_timer.cancel()
+            self.continuous_roll_timer = None
+        if self.is_continuous_roll:
             speed, angle = self.roll_continuous_params
-            self.roll_continuous(speed, angle)
+            self.roll_continuous(speed, angle, _print=False)
 
-    def stop_roll(self):
-        self.roll_time(0, self.angle, 0)
-        self.roll_continuous = False
+    def stop_roll(self, **kwargs):
+        if self.continuous_roll_timer:
+            self.continuous_roll_timer.cancel()
+            self.continuous_roll_timer = None
+        self.roll_time(0, self.angle, 0, **kwargs)
+        self.is_continuous_roll = False
         self.roll_continuous_params = None
 
     def turn(self, angle):
@@ -351,51 +359,52 @@ class DroidClient:
             self.drive_mode = True
             print('\nControls:\n%s\n\n' % utils.get_drive_mode_controls_text())
             print('Ready for keyboard input...\n')
+
             speed, angle = 0, self.angle
             while True:
                 key = utils.get_key()
+                break_, speed, angle = self.process_key(key, speed, angle)
+                if break_:
+                    break
+
             print('Exiting drive move...\n')
             self.drive_mode = False
             self.set_stance(2, _print=False)
         else:
             print('You must connect to a droid before you can enter drive mode')
 
-    def on_press(self, key):
+    def process_key(self, key, prev_speed, prev_angle, speed_interval=0.1, turn_interval=15):
         new_params = False
-        try:
-            #print('alphanum {0} pressed'.format(key.char))
-            if key.char == 's':
-                self.drive_mode_speed = 0
-                new_params = True
+        next_speed, next_angle = prev_speed, prev_angle
 
-        except AttributeError:
-            #print('special {0} pressed'.format(key))
-            speed_interval = 0.25 if self.drive_mode_shift else 0.1
-            turn_interval = 45 if self.drive_mode_shift else 15
-            if key == keyboard.Key.shift or key == keyboard.Key.shift_r:
-                self.drive_mode_shift = True
-            elif key == keyboard.Key.esc:
-                self.roll_continuous(0, self.drive_mode_angle, _print=False)
-                return False
-            elif key in []: #utils.DIRECTION_KEYS:
-                if key == keyboard.Key.up:
-                    self.drive_mode_speed = min(self.drive_mode_speed + speed_interval, 1)
-                elif key == keyboard.Key.down:
-                    self.drive_mode_speed = max(self.drive_mode_speed - speed_interval, 0)
-                elif key == keyboard.Key.right:
-                    self.drive_mode_angle = (self.drive_mode_angle + turn_interval) % 360
-                elif key == keyboard.Key.left:
-                    self.drive_mode_angle = (self.drive_mode_angle - turn_interval) % 360
-                new_params = True
+        if key == 's':
+            next_speed = 0
+            new_params = True
+
+        elif key == 'esc':
+            next_speed = 0
+            self.stop_roll()
+            return True, next_speed, next_angle
+
+        elif key in ['left', 'right', 'up', 'down']:
+            if key == 'up':
+                next_speed = min(prev_speed + speed_interval, 1)
+            elif key == 'down':
+                next_speed = max(prev_speed - speed_interval, 0)
+            elif key == 'right':
+                next_angle = (prev_angle + turn_interval) % 360
+            elif key == 'left':
+                next_angle = (prev_angle - turn_interval) % 360
+            new_params = True
                 
         if new_params:
-            self.roll_continuous(self.drive_mode_speed, self.drive_mode_angle, _print=False)
-            print('Speed: %g' % self.drive_mode_speed)
-            print('Heading: %d' % self.drive_mode_angle)
+            if next_speed > 0 or next_angle != prev_angle:
+                self.roll_continuous(next_speed, next_angle, _print=False)
+            else:
+                self.stop_roll(_print=False)
+            print('Speed: %g' % next_speed)
+            print('Heading: %d' % next_angle)
         print()
+        return False, next_speed, next_angle
 
-    def on_release(self, key):
-        #print('{0} released'.format(key))
-        if key == keyboard.Key.shift or key == keyboard.Key.shift_r:
-            self.drive_mode_shift = False
 
