@@ -6,6 +6,7 @@ import atexit
 from threading import Timer
 from pynput import keyboard
 import utils
+from threading import Timer
 
 class DroidClient:
     addr = '0.0.0.0'
@@ -14,7 +15,7 @@ class DroidClient:
     connected_to_droid = False
     history = []
     awake = False
-    position = np.zeros(2)  # measured in meters, accurate to within a few centimeters
+    #position = np.zeros(2)  # measured in meters, accurate to within a few centimeters
     angle = 0  # measured in degrees
     stance = 2
     waddling = False
@@ -22,6 +23,8 @@ class DroidClient:
     back_LED_color = (0, 0, 0)
     logic_display_intensity = 0
     holo_projector_intensity = 0
+    roll_continuous = False
+    roll_continuous_params = None
     drive_mode = False
     drive_mode_spreed = None
     drive_mode_angle = None
@@ -164,7 +167,6 @@ class DroidClient:
         d_y = round(dist * cos((90-angle)*pi/180), 2)
         self.position += np.array([d_x, d_y])
 
-
     def roll_time(self, speed, angle, time, turn=False):
         speed = speed           # 0 <= speed <= 1
         angle = angle % 360     # 0 <= angle < 360
@@ -173,11 +175,14 @@ class DroidClient:
         if not turn:
             self.setup_for_roll(angle)
         
-        command = 'roll_time %d %d %d' % (speed, angle, time*1000)
+        command = 'roll_time %g %d %d' % (speed, angle, time*1000)
         response = self.send_and_receive(command, wait=time)
         if response == 'Done rolling.':
-            self.update_position_vector(speed, angle, time)
+            #self.update_position_vector(speed, angle, time)
             self.angle = angle
+            if speed == 0:
+                self.roll_continuous = False
+                self.roll_continuous_params = None
             return True
         else:
             return False
@@ -190,12 +195,23 @@ class DroidClient:
         response = self.send_and_receive(command, **kwargs)
         if response == 'Initializing rolling.':
             self.angle = angle
+            if speed > 0:
+                self.roll_continuous = True
+                self.roll_continuous_params = (speed, angle)
+                Timer(1.0, self.restart_continuous_roll).start()
             return True
         else:
             return False
-    
+
+    def restart_continuous_roll(self):
+        if self.roll_continuous:
+            speed, angle = self.roll_continuous_params
+            self.roll_continuous(speed, angle)
+
     def stop_roll(self):
         self.roll_time(0, self.angle, 0)
+        self.roll_continuous = False
+        self.roll_continuous_params = None
 
     def turn(self, angle):
         angle = angle % 360  # 0 <= angle < 360
@@ -325,28 +341,19 @@ class DroidClient:
         return self.quit()
 
     def enter_drive_mode(self):
-        if not utils.is_sudo():
-            print('Drive mode requires super user privilege.')
-            return
-
-        self.drive_mode_speed = 0
-        self.drive_mode_angle = self.angle
-        self.drive_mode_shift = False
-      
         if self.connected_to_droid:
             print('\nPreparing for drive mode...\n')
             self.set_stance(1, _print=False)
-            with keyboard.Listener(on_press=self.on_press, on_release=self.on_release, suppress=True) as listener:
-                self.drive_mode = True
-                print('\nControls:\n%s\n\n' % utils.get_drive_mode_controls_text())
-                print('Ready for keyboard input...\n')
-                listener.join()
-                print('Exiting drive move...\n')
-                self.drive_mode = False
-                self.drive_mode_speed = None
-                self.drive_mode_angle = None
-                self.drive_mode_shift = None
-                self.set_stance(2, _print=False)
+
+            self.drive_mode = True
+            print('\nControls:\n%s\n\n' % utils.get_drive_mode_controls_text())
+            print('Ready for keyboard input...\n')
+            speed, angle = 0, self.angle
+            while True:
+                key = utils.get_key()
+            print('Exiting drive move...\n')
+            self.drive_mode = False
+            self.set_stance(2, _print=False)
         else:
             print('You must connect to a droid before you can enter drive mode')
 
@@ -367,7 +374,7 @@ class DroidClient:
             elif key == keyboard.Key.esc:
                 self.roll_continuous(0, self.drive_mode_angle, _print=False)
                 return False
-            elif key in utils.DIRECTION_KEYS:
+            elif key in []: #utils.DIRECTION_KEYS:
                 if key == keyboard.Key.up:
                     self.drive_mode_speed = min(self.drive_mode_speed + speed_interval, 1)
                 elif key == keyboard.Key.down:
