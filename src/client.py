@@ -84,7 +84,7 @@ class DroidClient:
     def connect_to_droid(self, name):
         command = 'connect %s' % name
         response = self.send_and_receive(command, wait=2)
-        if response == ('Connected to %s!' % name):
+        if response.startswith('Connected'):
             ready_response = self.wait_for_response()
             self.connected_to_droid = True
             return True
@@ -94,7 +94,7 @@ class DroidClient:
     def connect_to_R2D2(self):
         command = 'connect R2D2'
         response = self.send_and_receive(command, wait=2)
-        if response.startswith('Connected to D2-'):
+        if response.startswith('Connected'):
             ready_response = self.wait_for_response()
             self.connected_to_droid = True
             return True
@@ -104,7 +104,7 @@ class DroidClient:
     def connect_to_R2Q5(self):
         command = 'connect R2Q5'
         response = self.send_and_receive(command, wait=2)
-        if response.startswith('Connected to Q5-'):
+        if response.startswith('Connected'):
             ready_response = self.wait_for_response()
             self.connected_to_droid = True
             return True
@@ -114,7 +114,7 @@ class DroidClient:
     def connect_to_any(self):
         command = 'connect'
         response = self.send_and_receive(command, wait=2)
-        if response.startswith('Connected to '):
+        if response.startswith('Connected'):
             ready_response = self.wait_for_response()
             self.connected_to_droid = True
             return True
@@ -159,7 +159,7 @@ class DroidClient:
             woke = self.wake()
         if self.stance != 1:
             stance_set = self.set_stance(1)
-        if angle != self.angle:
+        if angle != None and angle != self.angle:
             turned = self.turn(angle)
 
     def update_position_vector(self, speed, angle, time):
@@ -168,18 +168,16 @@ class DroidClient:
         d_y = round(dist * cos((90-angle)*pi/180), 2)
         self.position += np.array([d_x, d_y])
 
-    def roll(self, speed, angle, time, turn=False):
-        return self.roll_time(speed, angle, time, turn=turn)
+    def roll(self, speed, angle, time):
+        return self.roll_time(speed, angle, time)
 
-    def roll_time(self, speed, angle, time, turn=False, **kwargs):
-        speed = speed           # 0 <= speed <= 1
-        angle = angle % 360     # 0 <= angle < 360
-        time = time             # time >= 0 (seconds)
+    def roll_time(self, speed, angle, time, **kwargs):
+        print('roll_time angle=', angle)
+        print('r2.angle=', self.angle)
 
-        if not turn:
-            self.setup_for_roll(angle)
+        self.setup_for_roll(angle)
         
-        command = 'roll_time %g %d %d' % (speed, angle, time*1000)
+        command = 'roll_time %g %d %g' % (speed, angle, time)
         response = self.send_and_receive(command, wait=time, **kwargs)
         if response == 'Done rolling.':
             #self.update_position_vector(speed, angle, time)
@@ -192,8 +190,8 @@ class DroidClient:
             return False
 
     def roll_continuous(self, speed, angle, **kwargs):
-        speed = speed
-        angle = angle % 360
+        
+        self.setup_for_roll(None)
 
         command = 'roll_continuous %g %d' % (speed, angle)
         response = self.send_and_receive(command, **kwargs)
@@ -224,9 +222,18 @@ class DroidClient:
         self.is_continuous_roll = False
         self.roll_continuous_params = None
 
-    def turn(self, angle):
-        angle = angle % 360  # 0 <= angle < 360
-        return self.roll_time(0, angle, 0.5, turn=True)
+    def turn(self, angle, **kwargs):
+        angle = min(angle - self.angle, (angle - self.angle) % 360, key=lambda x: abs(x))
+
+        self.setup_for_roll(None)
+
+        command = 'turn %d' % angle
+        response = self.send_and_receive(command, **kwargs)
+        if response == 'Done turning.':
+            self.angle = angle
+            return True
+        else:
+            return False
 
     def animate(self, i, wait=3):
         command = 'animate %d' % i
@@ -323,13 +330,19 @@ class DroidClient:
             return False
 
     def disconnect(self):
-        command = 'disconnect'
-        response = self.send_and_receive(command)
-        if response:
-            self.connected_to_droid = False
+        try:
+            self.turn(0, _print=False)
+            self.set_stance(2, _print=False)
+            command = 'disconnect'
+            response = self.send_and_receive(command)
+            if response:
+                self.connected_to_droid = False
+                return True
+            else:
+                return False
+        except:
+            print('Disconnected.')
             return True
-        else:
-            return False
 
     def quit(self):
         try:

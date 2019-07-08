@@ -178,10 +178,15 @@ var server = net.createServer(async function(socket) {
                     await droid.wake();
                     socket.write('Awake.\r\n');
 
+                } else if (command[0] == 'turn') {
+                    var angle = Number(command[1]);
+
+                    await droid.rollTime(0, angle, 0.5, []);
+                    socket.write('Done turning.\r\n')
                 } else if (command[0] == 'roll_time') {
                     var speed = 255*Number(command[1]);
                     var angle = Number(command[2]);
-                    var time = Number(command[3]);
+                    var time = 1000*Number(command[3]);
 
                     await droid.rollTime(speed, angle, time, []);
                     socket.write('Done rolling.\r\n');

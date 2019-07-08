@@ -1,11 +1,16 @@
-import pygame
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 import time
 import math
 WHITE = (255, 255, 255)
 
 class R2D2(pygame.sprite.Sprite):
 
+    socket_delegate = None
+
     original_image = None
+    name = 'R2D2'
     
     is_rolling = False
     time_started_rolling = None
@@ -16,6 +21,7 @@ class R2D2(pygame.sprite.Sprite):
 
     speed = 0
     heading = 0
+    stance = 2
 
     is_rotating = False
     heading_at_start = None
@@ -43,6 +49,21 @@ class R2D2(pygame.sprite.Sprite):
         self.my_x = self.rect.centerx
         self.my_y = self.rect.centery
 
+    def set_socket_delegate(self, sock):
+        self.socket_delegate = sock
+
+    def receive_data(self):
+        if self.socket_delegate:
+            return self.socket_delegate.receive_data()
+    
+    def handle_data(self, data):
+        self.socket_delegate.handle_data(data, self)
+
+    def receive_and_handle_data(self):
+        data = self.receive_data()
+        if data:
+            self.handle_data(data)
+
     def set_center_position(self, x=None, y=None):
         if x != None:
             self.rect.centerx = x
@@ -51,37 +72,42 @@ class R2D2(pygame.sprite.Sprite):
             self.rect.centery = y
             self.my_y = y
 
-    def roll(self, speed, roll_direction, duration, dist_scale=3):
+    def roll(self, speed, roll_direction, duration, dist_scale=1):
         self.stop_rotate()
         self.speed = speed
-        self.roll_direction = self.heading + roll_direction
+        self.roll_direction = roll_direction
         self.is_rolling = True
         self.time_started_rolling = time.time()
         self.current_roll_duration = duration
         self.current_dist_scale = dist_scale
 
-    def stop_roll(self):
+    def stop_roll(self, send_response=True):
         self.is_rolling = False
         self.time_started_rolling = None
         self.current_roll_duration = None
         self.current_dist_scale = None
         self.roll_direction = None
         self.count = 0
+        if send_response:
+            self.socket_delegate.done_rolling()
+
+    def stop_turn(self):
+        self.is_rotating = False
+        self.left_to_rotate = None
+        self.rotate_direction = None
+        self.socket_delegate.done_turning()
 
     def update(self):
 
         if self.is_rotating:
             if self.left_to_rotate > 0:
                 da = min(self.rotate_speed, self.left_to_rotate) * self.rotate_direction
-                #self.image = pygame.transform.rotate(self.image, da)
                 self.heading = (self.heading + da) % 360
                 self.left_to_rotate -= abs(da)
                 self.image = pygame.transform.rotozoom(self.original_image, -self.heading, 1)
                 self.rect = self.image.get_rect(center=self.rect.center)
             elif time.time() > self.time_started_rotate + self.rotate_timing_delay:
-                self.is_rotating = False
-                self.left_to_rotate = None
-                self.rotate_direction = None
+                self.stop_turn()
  
         if self.is_rolling:
             is_done_rolling = time.time() - self.time_started_rolling > self.current_roll_duration
@@ -92,22 +118,6 @@ class R2D2(pygame.sprite.Sprite):
                 dx = round(dist * math.cos((-self.roll_direction + 90) * math.pi/180), 2)
                 dy = round(dist * math.sin((-self.roll_direction + 90) * math.pi/180), 2)
 
-                #dx_int = int(dx)
-                #dx_frac = dx - dx_int
-                #dx_sgn = 1 if dx > 0 else -1
-                #if abs(dx_frac) > 0.05 and (self.count % 10) / 10 > dx_sgn * dx_frac:
-                #    dx_int += dx_sgn
-
-                #dy_int = int(dy)
-                #dy_frac = dy - dy_int
-                #dy_sgn = 1 if dy > 0 else -1
-                #if abs(dy_frac) > 0.05 and (self.count % 10) / 10 > dy_sgn * dy_frac:
-                #    dy_int += dy_sgn
-
-                print('\nrect.x', self.rect.x)
-                print('rect.y', self.rect.y)
-                print('dx: ', round(dist * math.cos((self.roll_direction + 90) * math.pi/180), 2))
-                print('roll_dir:', self.roll_direction)
                 self.my_x += dx
                 self.my_y -= dy
                 self.rect.centerx = int(round(self.my_x, 0))
@@ -115,7 +125,7 @@ class R2D2(pygame.sprite.Sprite):
                 self.count += 1
 
     def rotate(self, degrees):
-        self.stop_roll()
+        self.stop_roll(send_response=False)
         self.is_rotating = True
         self.heading_at_start = self.heading
         self.current_rotate_arc = degrees
@@ -128,6 +138,8 @@ class R2D2(pygame.sprite.Sprite):
         self.left_to_rotate = None
         self.rotate_direction = None
 
+    def set_stance(self, stance):
+        self.stance = stance
 
     def move_right(self, pixels):
         self.rect.x += pixels
