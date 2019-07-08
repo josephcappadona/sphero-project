@@ -5,21 +5,10 @@ import r2d2
 import server
 import sys
 
-keyboard_or_client = sys.argv[1] if len(sys.argv) > 1 else ''
-if keyboard_or_client == 'keyboard':
-    keyboard = True
-    client = False
-elif keyboard_or_client == 'client':
-    client = True
-    keyboard = False
-else:
-    print('USAGE:  python main.py keyboard|client\n')
-    sys.exit(0)
-
 pygame.init()
-if client:
-    serv = server.Server(None)
-    serv.start()
+
+serv = server.Server(None)
+serv.start()
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -35,8 +24,7 @@ all_sprites_list = pygame.sprite.Group()
 
 r2 = r2d2.R2D2()
 r2.set_center_position(x=r2.rect.width/2, y=s_h-r2.rect.height/2)
-if client:
-    r2.set_socket_delegate(serv)
+r2.set_socket_delegate(serv)
 
 all_sprites_list.add(r2)
 
@@ -60,29 +48,7 @@ while carry_on:
         if event.type == pygame.QUIT:
             carry_on = False
 
-    if keyboard:
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            #r2.roll(1.0, -90, 0.25)
-            pass
-        if keys[pygame.K_RIGHT]:
-            pass
-            #r2.roll(1.0, 90, 0.25)
-        if keys[pygame.K_UP]:
-            r2.roll(1.0, 0, 0.05)
-        if keys[pygame.K_DOWN]:
-            r2.roll(1.0, 180, 0.05)
-        if keys[pygame.K_r]:
-            r2.rotate(3)
-        if keys[pygame.K_l]:
-            r2.rotate(-3)
-        if keys[pygame.K_t]:
-            r2.set_stance(1)
-        if keys[pygame.K_b]:
-            r2.set_stance(2)
-
-    if client:
-        r2.receive_and_handle_data()
+    r2.receive_and_handle_data()
 
     # game logic
     r2.update()

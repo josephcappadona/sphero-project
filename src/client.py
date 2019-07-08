@@ -370,7 +370,7 @@ class DroidClient:
             self.set_stance(1, _print=False)
 
             self.drive_mode = True
-            print('\nControls:\n%s\n\n' % utils.get_drive_mode_controls_text())
+            print('\nControls:\n%s\n' % utils.get_drive_mode_controls_text())
             print('Ready for keyboard input...\n')
 
             speed, angle = 0, self.angle
