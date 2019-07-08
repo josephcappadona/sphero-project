@@ -16,7 +16,7 @@ Start game GUI and server:
 python main.py
 ```
 
-From a Python REPL in the parent directory, initiate a `DroidClient` object and call `connect_to_R2D2`:
+From a Python REPL in the parent directory (`src`), initiate a `DroidClient` object and call `connect_to_R2D2`:
 
 ```python
 from client import DroidClient
