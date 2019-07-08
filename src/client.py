@@ -57,7 +57,7 @@ class DroidClient:
         return response
 
     def send_command(self, command, wait=0, _print=True):
-        self.tn.write(command.encode())
+        self.tn.write((command+'\r\n').encode())
         if _print:
             print('Command: ' + command)
         time.sleep(wait)  # certain commands (like animations and turning) receive responses right away; let's wait so we don't accidentally interrupt them
@@ -172,8 +172,6 @@ class DroidClient:
         return self.roll_time(speed, angle, time)
 
     def roll_time(self, speed, angle, time, **kwargs):
-        print('roll_time angle=', angle)
-        print('r2.angle=', self.angle)
 
         self.setup_for_roll(angle)
         
@@ -190,7 +188,10 @@ class DroidClient:
             return False
 
     def roll_continuous(self, speed, angle, **kwargs):
-        
+        if self.continuous_roll_timer:
+            self.continuous_roll_timer.cancel()
+            self.continuous_roll_timer = None
+       
         self.setup_for_roll(None)
 
         command = 'roll_continuous %g %d' % (speed, angle)
@@ -200,7 +201,7 @@ class DroidClient:
             if speed > 0:
                 self.is_continuous_roll = True
                 self.roll_continuous_params = (speed, angle)
-                self.continuous_roll_timer = Timer(1.0, self.restart_continuous_roll)
+                self.continuous_roll_timer = Timer(1.5, self.restart_continuous_roll)
                 self.continuous_roll_timer.start()
             return True
         else:
@@ -331,7 +332,6 @@ class DroidClient:
 
     def disconnect(self):
         try:
-            self.turn(0, _print=False)
             self.set_stance(2, _print=False)
             command = 'disconnect'
             response = self.send_and_receive(command)
@@ -401,9 +401,9 @@ class DroidClient:
 
         elif key in ['left', 'right', 'up', 'down']:
             if key == 'up':
-                next_speed = min(prev_speed + speed_interval, 1)
+                next_speed = round(min(prev_speed + speed_interval, 1), 1)
             elif key == 'down':
-                next_speed = max(prev_speed - speed_interval, 0)
+                next_speed = round(max(prev_speed - speed_interval, 0), 1)
             elif key == 'right':
                 next_angle = (prev_angle + turn_interval) % 360
             elif key == 'left':

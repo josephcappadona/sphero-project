@@ -55,17 +55,20 @@ class Server:
     def handle_data(self, data, r2):
         if data == None or r2 == None:
             return
-        command = data.split(' ')
+        for command_str in data.split('\r\n'):
+            self.handle_command(command_str, r2)
+
+    def handle_command(self, command_str, r2):
+        command = command_str.split(' ')
         if command[0] == 'connect':
+            if r2.heading != 0:
+                r2.rotate(-r2.heading, send_response=False)
             self.send_message('Connected to %s.\r\n' % r2.name)
             self.send_message('Ready for commands!\r\n')
         elif command[0] == 'turn':
             angle = int(command[1])
             if (angle % 360) != r2.heading:
-                print('ANGLE=', angle)
-                print('R2.HEADING=', r2.heading)
                 to_rotate = min(angle % 360, (angle % 360) - 360, key=lambda x: abs(x))
-                print('TO_ROTATE=', to_rotate)
                 r2.rotate(to_rotate)
         elif command[0] == 'roll_time':
             speed, angle, time = command[1:]
@@ -74,10 +77,15 @@ class Server:
             time = float(time)
 
             r2.roll(speed, angle, time)
+        elif command[0] == 'roll_continuous':
+            speed = float(command[1])
+            angle = int(command[2])
+
+            self.send_message('Initializing rolling.\r\n')
+            r2.roll(speed, angle, 1000)
         elif command[0] == 'set_stance':
             stance = int(command[1])
             r2.set_stance(stance)
-            self.send_message('Stance set.\r\n')
         elif command[0] == 'quit' or command[0] == 'exit' or command[0] == 'close' or command[0] == 'disconnect':
             self.send_message('Disconnected.\r\n')
             self.conn.close()
@@ -88,6 +96,9 @@ class Server:
 
     def done_turning(self):
         self.send_message('Done turning.\r\n')
+
+    def stance_set(self):
+        self.send_message('Stance set.\r\n')
 
 if __name__ == '__main__':
     s = Server(None)

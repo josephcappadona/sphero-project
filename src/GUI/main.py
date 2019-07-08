@@ -76,6 +76,10 @@ while carry_on:
             r2.rotate(3)
         if keys[pygame.K_l]:
             r2.rotate(-3)
+        if keys[pygame.K_t]:
+            r2.set_stance(1)
+        if keys[pygame.K_b]:
+            r2.set_stance(2)
 
     if client:
         r2.receive_and_handle_data()

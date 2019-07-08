@@ -31,8 +31,9 @@ class R2D2(pygame.sprite.Sprite):
     rotate_direction = None
     time_started_rotate = None
     rotate_timing_delay = 0.15
+    send_done_turning_response = True
 
-    def __init__(self, width=492, height=654, scale=0.15):
+    def __init__(self, width=224, height=224, scale=0.25):
         super().__init__()
         width, height = int(width*scale), int(height*scale)
 
@@ -40,10 +41,15 @@ class R2D2(pygame.sprite.Sprite):
         self.image.fill(WHITE)
         self.image.set_colorkey(WHITE)
 
-        image = pygame.image.load('r2d2.png').convert_alpha()
-        self.image = pygame.transform.scale(image, (width, height))
-        self.image = pygame.transform.rotozoom(self.image, 0, 1)
-        self.original_image = self.image.copy()
+        bipod_image = pygame.image.load('pics/r2d2_top_bipod.png').convert_alpha()
+        bipod_image = pygame.transform.scale(bipod_image, (width, height))
+        self.bipod_image = pygame.transform.rotozoom(bipod_image, 0, 1)
+
+        tripod_image = pygame.image.load('pics/r2d2_top_tripod.png').convert_alpha()
+        tripod_image = pygame.transform.scale(tripod_image, (width, height))
+        self.tripod_image = pygame.transform.rotozoom(tripod_image, 0, 1)
+
+        self.image = self.bipod_image.copy()
 
         self.rect = self.image.get_rect()
         self.my_x = self.rect.centerx
@@ -74,6 +80,12 @@ class R2D2(pygame.sprite.Sprite):
 
     def roll(self, speed, roll_direction, duration, dist_scale=1):
         self.stop_rotate()
+        if self.stance == 2:
+            self.set_stance(1, send_response=False)
+        if self.heading != (roll_direction % 360):
+            self.image = pygame.transform.rotozoom(self.tripod_image if self.stance == 1 else self.bipod_image, -roll_direction, 1)
+            self.heading = (roll_direction % 360)
+            self.rect = self.image.get_rect(center=self.rect.center)
         self.speed = speed
         self.roll_direction = roll_direction
         self.is_rolling = True
@@ -88,14 +100,15 @@ class R2D2(pygame.sprite.Sprite):
         self.current_dist_scale = None
         self.roll_direction = None
         self.count = 0
-        if send_response:
+        if send_response and self.socket_delegate != None:
             self.socket_delegate.done_rolling()
 
-    def stop_turn(self):
+    def stop_turn(self, send_response=True):
         self.is_rotating = False
         self.left_to_rotate = None
         self.rotate_direction = None
-        self.socket_delegate.done_turning()
+        if send_response and self.send_done_turning_response and self.socket_delegate != None:
+            self.socket_delegate.done_turning()
 
     def update(self):
 
@@ -104,10 +117,10 @@ class R2D2(pygame.sprite.Sprite):
                 da = min(self.rotate_speed, self.left_to_rotate) * self.rotate_direction
                 self.heading = (self.heading + da) % 360
                 self.left_to_rotate -= abs(da)
-                self.image = pygame.transform.rotozoom(self.original_image, -self.heading, 1)
+                self.image = pygame.transform.rotozoom(self.tripod_image if self.stance == 1 else self.bipod_image, -self.heading, 1)
                 self.rect = self.image.get_rect(center=self.rect.center)
             elif time.time() > self.time_started_rotate + self.rotate_timing_delay:
-                self.stop_turn()
+                self.stop_turn(send_response=self.send_done_turning_response)
  
         if self.is_rolling:
             is_done_rolling = time.time() - self.time_started_rolling > self.current_roll_duration
@@ -124,7 +137,8 @@ class R2D2(pygame.sprite.Sprite):
                 self.rect.centery = int(round(self.my_y, 0))
                 self.count += 1
 
-    def rotate(self, degrees):
+    def rotate(self, degrees, send_response=True):
+        self.send_done_turning_response = send_response
         self.stop_roll(send_response=False)
         self.is_rotating = True
         self.heading_at_start = self.heading
@@ -138,8 +152,14 @@ class R2D2(pygame.sprite.Sprite):
         self.left_to_rotate = None
         self.rotate_direction = None
 
-    def set_stance(self, stance):
+    def set_stance(self, stance, send_response=True):
         self.stance = stance
+        if stance == 1:
+            self.image = pygame.transform.rotozoom(self.tripod_image, -self.heading, 1)
+        elif stance == 2:
+            self.image = pygame.transform.rotozoom(self.bipod_image.copy(), -self.heading, 1)
+        if send_response:
+            self.socket_delegate.stance_set()
 
     def move_right(self, pixels):
         self.rect.x += pixels
