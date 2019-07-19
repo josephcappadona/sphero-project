@@ -56,7 +56,7 @@ droid.set_stance(2)  # transition back to bipod
 
 from maneuver import follow_path
 path = [(0,0), (0,1), (1,1), (1,2), (2,2), (2,3), (3,3), (3,0), (0,0)]
-follow_path(droid, path, 0x88, scale_dist=0.5)
+follow_path(droid, path, 1.0, scale_dist=0.5)
 
 droid.turn(0)
 droid.sleep()
@@ -87,6 +87,52 @@ RIGHT = adjust heading right 15°
 S = stop droid (brings speed to 0)
 ESC = quit drive mode
 ```
+
+### GUI
+
+There is a PyGame GUI that will allow you to control R2D2 in a virtual sandbox using the same DroidClient interface that is used to control the actual droids.
+
+In one terminal:
+
+```
+cd sphero-project/src/GUI
+python main.py
+```
+
+In another terminal:
+```
+cd sphero-project/src
+python -i connect_to_r2d2.py
+```
+
+A PyGame window will pop up that should show R2D2 on a white background. `python -i connect_to_r2d2.py` will run the script `connect_to_r2d2.py` and then drop you into a Python REPL with access to a DroidClient variable called `r2`. In the REPL, you can control R2D2 using any of the methods implemented by DroidClient (a few of the cosmetic commands such as LED colors and sounds are not implemented):
+
+```python
+r2.set_stance(1)
+r2.turn(90)
+r2.roll(0.5, 90, 2)
+r2.roll(0.5, 0, 2)
+```
+
+You can even use [Drive Mode](#drive-mode):
+
+```python
+r2.enter_drive_mode()
+```
+
+#### Loading a Map into the GUI
+
+You can load a map into the GUI by running `main.py` with an additional argument. We will use the `generate_random_maze.py` script in `sphero-project/src` to generate a random 25x30 maze and load it into the GUI:
+
+```
+cd sphero-project/src
+python generate_random_maze.py 25 30 > GUI/test_maze.txt
+
+cd GUI
+python main.py test_maze.txt
+```
+
+Then, in another terminal, connect to the GUI the same way you did above: `python -i connect_to_r2d2.py`.
 
 ## Development
 
