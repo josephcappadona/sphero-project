@@ -1,52 +1,67 @@
 from queue import PriorityQueue
 from collections import defaultdict
+from math import sqrt
 inf = float('inf')
 
+def null_heuristic(u, v):
+    return 0
+
+def manhattan_distance_heuristic(u, v):
+    return sum(abs(x1-x2) for x1,x2 in zip(u,v))
+
+def euclidean_distance_heuristic(u, v):
+    return sqrt(sum((x1-x2)**2 for x1,x2 in zip(u,v)))
+
 # adapted from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
-def A_star(G, start, goal):
+def A_star(G, start, goal, heuristic=null_heuristic):
 
     closedSet = set()
     openSet = set([start])
     frontier = PriorityQueue()
-    cameFrom = dict()
+    parent = {}
 
     gScore = defaultdict(lambda:inf)  # gScore[v] = cost(start, v)
     gScore[start] = 0
 
-    fScore = defaultdict(lambda:inf)  # fScore[v] = cost(start, v) + cost(v, goal)
-    fScore[start] = heuristic_cost_estimate(G, start, goal)
+    fScore = defaultdict(lambda:inf)  # fScore[v] = cost(start, v) + heuristic(v, goal)
+    fScore[start] = heuristic(start, goal)
     frontier.put((fScore[start], start))
 
     while openSet:
-        _, current = frontier.get()
-        if current == goal:
-            return reconstruct_path(cameFrom, current)
+        _, u = frontier.get()
+        if u == goal:
+            return reconstruct_path(start, goal, parent)
 
-        openSet.remove(current)
-        closedSet.add(current)
+        try:
+            openSet.remove(u)
+        except:
+            pass
+        closedSet.add(u)
 
-        for neighbor in G.neighbors(current):
-            if neighbor in closedSet:
+        for v in G.neighbors(u):
+            if v in closedSet:
                 continue
 
-            tentative_gScore = gScore[current] + G.dist_between(current, neighbor)
+            tentative_gScore = gScore[u] + G.dist_between(u, v)
 
-            if neighbor not in openSet:
-                openSet.add(neighbor)
-            elif tentative_gScore >= gScore[neighbor]:
+            if v not in openSet:
+                openSet.add(v)
+            elif tentative_gScore >= gScore[v]:
                 continue
 
-            cameFrom[neighbor] = current
-            gScore[neighbor] = tentative_gScore
-            fScore[neighbor] = gScore[neighbor] + heuristic_cost_estimate(G, neighbor, goal)
-            frontier.put((fScore[neighbor], neighbor))
+            parent[v] = u
+            gScore[v] = tentative_gScore
+            fScore[v] = gScore[v] + heuristic(v, goal)
+            frontier.put((fScore[v], v))
 
-def reconstruct_path(cameFrom, current):
-    total_path = [current]
-    while current in cameFrom.keys():
-        current = cameFrom[current]
-        total_path.append(current)
-    return total_path[::-1]
+            if v == goal:
+                return reconstruct_path(start, goal, parent)
 
-def heuristic_cost_estimate(G, u, v):
-    return 0  # simple, admissable heuristic
+def reconstruct_path(start, goal, parent):
+    path = [goal]
+    current = goal
+    while current != start:
+        current = parent[current]
+        path.append(current)
+    return path[::-1]
+

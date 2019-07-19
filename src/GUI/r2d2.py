@@ -2,7 +2,7 @@ import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
 import time
-import math
+from utils import sin, cos
 WHITE = (255, 255, 255)
 
 class R2D2(pygame.sprite.Sprite):
@@ -32,14 +32,15 @@ class R2D2(pygame.sprite.Sprite):
     time_started_rotate = None
     rotate_timing_delay = 0.15
     send_done_turning_response = True
+    block_vertical = False
+    block_horizontal = False
 
-    def __init__(self, width=224, height=224, scale=0.25):
+    def __init__(self, pos, width=50, height=50):
         super().__init__()
-        width, height = int(width*scale), int(height*scale)
+        x, y = pos
 
-        self.image = pygame.Surface([width, height])
-        self.image.fill(WHITE)
-        self.image.set_colorkey(WHITE)
+        self.image = pygame.Surface([width, height]).convert_alpha()
+        self.image.fill((0,0,0,0))
 
         bipod_image = pygame.image.load('pics/r2d2_top_bipod.png').convert_alpha()
         bipod_image = pygame.transform.scale(bipod_image, (width, height))
@@ -51,9 +52,10 @@ class R2D2(pygame.sprite.Sprite):
 
         self.image = self.bipod_image.copy()
 
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(x=x, y=y)
         self.my_x = self.rect.centerx
         self.my_y = self.rect.centery
+        self.mask = pygame.mask.from_surface(self.image)
 
     def set_socket_delegate(self, sock):
         self.socket_delegate = sock
@@ -78,7 +80,7 @@ class R2D2(pygame.sprite.Sprite):
             self.rect.centery = y
             self.my_y = y
 
-    def roll(self, speed, roll_direction, duration, dist_scale=1):
+    def roll(self, speed, roll_direction, duration, dist_scale=2):
         self.stop_rotate()
         if self.stance == 2:
             self.set_stance(1, send_response=False)
@@ -128,14 +130,17 @@ class R2D2(pygame.sprite.Sprite):
                 self.stop_roll()
             else:
                 dist = self.current_dist_scale * self.speed
-                dx = round(dist * math.cos((-self.roll_direction + 90) * math.pi/180), 2)
-                dy = round(dist * math.sin((-self.roll_direction + 90) * math.pi/180), 2)
+                dx = round(dist * cos(-self.roll_direction + 90), 2)
+                dy = round(dist * sin(-self.roll_direction + 90), 2)
 
-                self.my_x += dx
-                self.my_y -= dy
+                if not self.block_horizontal:
+                    self.my_x += dx
+                if not self.block_vertical:
+                    self.my_y -= dy
                 self.rect.centerx = int(round(self.my_x, 0))
                 self.rect.centery = int(round(self.my_y, 0))
                 self.count += 1
+        self.mask = pygame.mask.from_surface(self.image)
 
     def rotate(self, degrees, send_response=True):
         self.send_done_turning_response = send_response
@@ -161,14 +166,3 @@ class R2D2(pygame.sprite.Sprite):
         if send_response:
             self.socket_delegate.stance_set()
 
-    def move_right(self, pixels):
-        self.rect.x += pixels
-
-    def move_left(self, pixels):
-        self.rect.x -= pixels
-
-    def move_up(self, pixels):
-        self.rect.y -= pixels
-
-    def move_down(self, pixels):
-        self.rect.y += pixels
