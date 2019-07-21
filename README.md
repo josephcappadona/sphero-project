@@ -20,85 +20,92 @@ Once it is installed, open Terminal, run `xcode-select --install`, and follow th
 4. If you do not have Homebrew installed, install it from https://brew.sh. (You can check if it is installed by typing `which brew` in Terminal--if it is installed, it will print something like `/usr/local/bin/brew`.)
 
 5. Clone this repo in whatever directory you would like:
-```bash
-cd ~/Documents  # replace "Documents" with your desired directory
-git clone https://github.com/josephcappadona/sphero-project.git
-```
+
+    ```bash
+    cd ~/Documents  # replace "Documents" with your desired directory
+    git clone https://github.com/josephcappadona/sphero-project.git
+    ```
 
 6. Navigate into the repository and create a Python virtual environment:
-```bash
-cd sphero-project
-/usr/local/bin/python3.7 -m venv virtualenv
-source virtualenv/bin/activate
-python -m pip install --upgrade pip
-```
 
-If you have never used virtual environments before, you can read about them here: https://docs.python.org/3/tutorial/venv.html. Essentially, a virtual environment creates a sandbox in which you can install and manage dependencies without affecting dependencies used in other projects.
+    ```bash
+    cd sphero-project
+    /usr/local/bin/python3.7 -m venv virtualenv
+    source virtualenv/bin/activate
+    python -m pip install --upgrade pip
+    ```
 
-IMPORTANT: Every time you begin to do work in this library, you must run `source virtualenv/bin/activate` in Terminal to activate your virtual environment (you must do this for each Terminal instance you are running); if you do not, it is possible you will use a different version of Python or incorrect versions of important dependencies. When you are done working with this package, run `deactivate` in Terminal to deactivate the virtual environment so that you do not accidentally modify it when doing unrelated work.
+    If you have never used virtual environments before, you can read about them here: https://docs.python.org/3/tutorial/venv.html. Essentially, a virtual environment creates a sandbox in which you can install and manage dependencies without affecting dependencies used in other projects.
+
+    IMPORTANT: Every time you begin to do work in this library, you must run `source virtualenv/bin/activate` in Terminal to activate your virtual environment (you must do this for each Terminal instance you are running); if you do not, it is possible you will use a different version of Python or incorrect versions of important dependencies. When you are done working with this package, run `deactivate` in Terminal to deactivate the virtual environment so that you do not accidentally modify it when doing unrelated work.
 
 7. Set your virtual environment's PATH variable:
-```bash
-export PATH=\`pwd\`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
-```
 
-Your shell's PATH variable "is basically a list of directories your computer looks through to find a requested executable" (you can read more about it here: https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4).
+    ```bash
+    export PATH=\`pwd\`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
+    ```
+
+    Your shell's PATH variable "is basically a list of directories your computer looks through to find a requested executable" (you can read more about it here: https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4).
 
 8. Set up Node.js within your virtual environment:
-```bash
-python -m pip install nodeenv
-nodeenv -p --node=10.15.3
-brew install yarn
-```
 
-9. Install the required Python dependencies: 
-```bash
-python -m pip install numpy pygame
-```
+    ```bash
+    python -m pip install nodeenv
+    nodeenv -p --node=10.15.3
+    brew install yarn
+    ```
+
+9. Install the required Python dependencies:
+
+    ```bash
+    python -m pip install numpy pygame
+    ```
 
 10. Install the required JavaScript dependencies and compile the Spherov2.js library:
-```bash
-cd spherov2.js
-sudo yarn install
-cd lib
-yarn rebuild
-```
+
+    ```bash
+    cd spherov2.js
+    sudo yarn install
+    cd lib
+    yarn rebuild
+    ```
 
 11. Test that the Sphero server will launch:
-```bash
-cd ../examples
-sudo yarn server
-```
 
-If it works, you will see `Listening...`. For instructions on how to actually use this server, see [below](#usage).
+    ```bash
+    cd ../examples
+    sudo yarn server
+    ```
+
+    If it works, you will see `Listening...`. For instructions on how to actually use this server, see [below](#usage).
 
 12. To test the Python client (the program you will use to send commands to the JavaScript server), leave the server from Step 11 running and open up a new Terminal, navigate to where you cloned this project, and activate your virtual environment:
 
-```bash
-cd ~/Documents/sphero-project  # Replace "Documents" with the location you cloned this repository
-source virtualenv/bin/activate
-```
+    ```bash
+    cd ~/Documents/sphero-project  # Replace "Documents" with the location you cloned this repository
+    source virtualenv/bin/activate
+    ```
 
-Then, navigate into the `src` directory and launch a Python REPL:
+    Then, navigate into the `src` directory and launch a Python REPL:
 
-```bash
-cd src
-python
-```
+    ```bash
+    cd src
+    python
+    ```
 
-Run these commands:
+    Run these commands:
 
-```python
-from client import DroidClient
-droid = DroidClient()
-droid.scan()  # Scan the area for droids
-droid.connect_to_droid('D2-55A2')  # Replace 'D2-55A2' with your droid's identifier
-droid.disconnect()
-droid.quit()
-exit()
-```
+    ```python
+    from client import DroidClient
+    droid = DroidClient()
+    droid.scan()  # Scan the area for droids
+    droid.connect_to_droid('D2-55A2')  # Replace 'D2-55A2' with your droid's identifier
+    droid.disconnect()
+    droid.quit()
+    exit()
+    ```
 
-If it is working, you should receive no errors, and your R2D2 should do a funny little animation once you connect to him. For more details on how to use this Python client, see [below](#start-client).
+    If it is working, you should receive no errors, and your R2D2 should do a funny little animation once you connect to him. For more details on how to use this Python client, see [below](#start-client).
 
 ### Windows & Linux
 
