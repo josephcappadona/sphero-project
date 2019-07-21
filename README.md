@@ -4,37 +4,126 @@
 [R2D2 + A*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
 
 ## Setup
-```
-# clone this repo
+
+### Mac OS
+
+0. If you have not already, install Xcode from the App Store: https://apps.apple.com/us/app/xcode/id497799835?mt=12
+
+Once it is installed, open Terminal, run `xcode-select --install`, and follow the prompts to install Xcode Command Line Tools. (If you already have the Command Line Tools installed, you will receive an error message saying so.)
+
+1. Download and install the most current version of Python from https://www.python.org/downloads/
+
+2. Using Finder, navigate to `/Applications/Python 3.7` and double click the file `Install Certificates.command`.
+
+3. Verify that Python was installed to the correct location by typing the following command into Terminal: `ls /usr/local/bin/python3.7`. If it prints out `/usr/local/bin/python3.7`, you are good.
+
+4. If you do not have Homebrew installed, install it from https://brew.sh. (You can check if it is installed by typing `which brew` in Terminal--if it is installed, it will print something like `/usr/local/bin/brew`.)
+
+5. Clone this repo in whatever directory you would like:
+```bash
+cd ~/Documents  # replace "Documents" with your desired directory
 git clone https://github.com/josephcappadona/sphero-project.git
-cd sphero-project
-
-# install python dependencies
-python3.7 -m pip install numpy pygame pynput
-
-# setup node.js
-cd src
-bash setup_node_mac.sh
-cd ..
-
-# compile the server library and dependencies
-cd spherov2.js/lib
-yarn rebuild
-cd ..
-yarn install
 ```
+
+6. Navigate into the repository and create a Python virtual environment:
+```bash
+cd sphero-project
+/usr/local/bin/python3.7 -m venv virtualenv
+source virtualenv/bin/activate
+python -m pip install --upgrade pip
+```
+
+If you have never used virtual environments before, you can read about them here: https://docs.python.org/3/tutorial/venv.html. Essentially, a virtual environment creates a sandbox in which you can install and manage dependencies without affecting dependencies used in other projects.
+
+IMPORTANT: Every time you begin to do work in this library, you must run `source virtualenv/bin/activate` in Terminal to activate your virtual environment (you must do this for each Terminal instance you are running); if you do not, it is possible you will use a different version of Python or incorrect versions of important dependencies. When you are done working with this package, run `deactivate` in Terminal to deactivate the virtual environment so that you do not accidentally modify it when doing unrelated work.
+
+7. Set your virtual environment's PATH variable:
+```bash
+export PATH=\`pwd\`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
+```
+
+Your shell's PATH variable "is basically a list of directories your computer looks through to find a requested executable" (you can read more about it here: https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4).
+
+8. Set up Node.js within your virtual environment:
+```bash
+python -m pip install nodeenv
+nodeenv -p --node=10.15.3
+brew install yarn
+```
+
+9. Install the required Python dependencies: 
+```bash
+python -m pip install numpy pygame
+```
+
+10. Install the required JavaScript dependencies and compile the Spherov2.js library:
+```bash
+cd spherov2.js
+sudo yarn install
+cd lib
+yarn rebuild
+```
+
+11. Test that the Sphero server will launch:
+```bash
+cd ../examples
+sudo yarn server
+```
+
+If it works, you will see `Listening...`. For instructions on how to actually use this server, see [below](#usage).
+
+12. To test the Python client (the program you will use to send commands to the JavaScript server), leave the server from Step 11 running and open up a new Terminal, navigate to where you cloned this project, and activate your virtual environment:
+
+```bash
+cd ~/Documents/sphero-project  # Replace "Documents" with the location you cloned this repository
+source virtualenv/bin/activate
+```
+
+Then, navigate into the `src` directory and launch a Python REPL:
+
+```bash
+cd src
+python
+```
+
+Run these commands:
+
+```python
+from client import DroidClient
+droid = DroidClient()
+droid.scan()  # Scan the area for droids
+droid.connect_to_droid('D2-55A2')  # Replace 'D2-55A2' with your droid's identifier
+droid.disconnect()
+droid.quit()
+exit()
+```
+
+If it is working, you should receive no errors, and your R2D2 should do a funny little animation once you connect to him. For more details on how to use this Python client, see [below](#start-client).
+
+### Windows & Linux
+
+We have not been able to test the Spherov2.js library on Windows or Linux; however, if you follow along with the Python-specific parts of the [Mac OS setup instructions](#mac-os) and translate the terminal commands into commands that are supported by your OS (e.g., `apt-get` instead of `brew`), it should not be difficult to get Python up and running such that you can utilize the [Python client](#start-client) with the [GUI Sandbox](#gui) detailed below.
+
+If you'd like to help us get this working, please reach out to me or CCB!
 
 ## Usage
 
-### Start Server
+### Activate Virtual Enviornment
+
+```bash
+cd sphero-project
+source virtualenv/bin/activate
 ```
+
+### Start Server
+```bash
 cd sphero-project/spherov2.js/examples
 sudo yarn server  # must use sudo to access bluetooth adapter
 ```
 
 ### Start Client
-Navigate to `sphero-project/src`, and in `python3.7` REPL:
-```
+Navigate to `sphero-project/src`, and in a Python REPL:
+```python
 from client import DroidClient
 droid = DroidClient()
 droid.scan()
@@ -54,11 +143,7 @@ droid.play_sound(10)
 droid.roll(0.5, 180, 2)  # drive at half speed, at a 180deg heading, for 2 seconds
 droid.set_stance(2)  # transition back to bipod
 
-from maneuver import follow_path
-path = [(0,0), (0,1), (1,1), (1,2), (2,2), (2,3), (3,3), (3,0), (0,0)]
-follow_path(droid, path, 0x88, scale_dist=0.5)
-
-droid.turn(0)
+droid.turn(180)
 droid.sleep()
 droid.quit()
 ```
@@ -92,14 +177,12 @@ ESC = quit drive mode
 
 Should you change any of the `spherov2.js/lib` files, you must rebuild the library:
 
-```
+```bash
 cd sphero-project/spherov2.js/lib
 yarn rebuild
 ```
 
 ## TODO
 
-* implement GUI
 * document interface properly
-* move `spherov2.js` into a `lib` folder
 * create scripts to start the server for simplicity (?)
