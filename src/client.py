@@ -4,7 +4,6 @@ import numpy as np
 from math import sin, cos, pi
 import atexit
 from threading import Timer
-from pynput import keyboard
 import utils
 from threading import Timer
 
