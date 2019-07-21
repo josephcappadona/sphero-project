@@ -42,7 +42,7 @@ Once it is installed, open Terminal, run `xcode-select --install`, and follow th
 7. Set your virtual environment's PATH variable:
 
     ```bash
-    export PATH=\`pwd\`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
+    export PATH=`pwd`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
     ```
 
     Your shell's PATH variable "is basically a list of directories your computer looks through to find a requested executable" (you can read more about it here: https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4).
