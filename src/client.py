@@ -225,7 +225,7 @@ class DroidClient:
         self.roll_continuous_params = None
 
     def turn(self, angle, **kwargs):
-        angle = min(angle - self.angle, (angle - self.angle) % 360, key=lambda x: abs(x))
+        angle = (self.angle + angle) % 360
 
         self.setup_for_roll(None)
 
