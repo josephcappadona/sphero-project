@@ -19,6 +19,7 @@ class DroidClient:
     angle = 0  # measured in degrees
     stance = 2
     waddling = False
+    head_angle = 0
     front_LED_color = (0, 0, 0)
     back_LED_color = (0, 0, 0)
     logic_display_intensity = 0
@@ -248,6 +249,20 @@ class DroidClient:
         response = self.send_and_receive(command)
         if response == 'Waddle set.':
             self.waddle = waddle
+            return True
+        else:
+            return False
+
+    def rotate_head(self, angle):
+        angle = min(max(-160, angle), 180)
+
+        if not self.awake:
+            woke = self.wake()
+
+        command = 'turn_dome %d' % angle
+        response = self.send_and_receive(command)
+        if response == 'Dome turned.':
+            self.head_angle = angle
             return True
         else:
             return False
