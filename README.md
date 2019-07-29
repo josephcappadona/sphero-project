@@ -80,6 +80,8 @@
     yarn rebuild
     ```
 
+11. Test your installation with [these steps](#testing-your-installation).
+
 #### Linux
 
 These instructions will assume you are using a Debian-based Linux distro (Ubuntu, Arch, Fedora). If you are not, then the steps which use a package manager (0 and 4)to install dependencies will need to be translated for your ditro's package manager.
@@ -148,6 +150,8 @@ These instructions will assume you are using a Debian-based Linux distro (Ubuntu
     cd lib
     yarn rebuild
     ```
+
+8. Test your installation with [these steps](#testing-your-installation).
 
 #### Windows
 
