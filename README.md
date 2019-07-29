@@ -1,15 +1,17 @@
 # sphero-project
 
 ## Video Example
-[R2D2 + A*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
+[R2D2 + A\*](https://www.youtube.com/watch?v=qjIhtkhbPT8)
 
 ## Setup
 
-### Mac OS
+### Installation
+
+#### Mac OS
 
 0. If you have not already, install Xcode from the App Store: https://apps.apple.com/us/app/xcode/id497799835?mt=12
 
-Once it is installed, open Terminal, run `xcode-select --install`, and follow the prompts to install Xcode Command Line Tools. (If you already have the Command Line Tools installed, you will receive an error message saying so.)
+    Once it is installed, open Terminal, run `xcode-select --install`, and follow the prompts to install Xcode Command Line Tools. (If you already have the Command Line Tools installed, you will receive an error message saying so.)
 
 1. Download and install the most current version of Python from https://www.python.org/downloads/
 
@@ -17,16 +19,14 @@ Once it is installed, open Terminal, run `xcode-select --install`, and follow th
 
 3. Verify that Python was installed to the correct location by typing the following command into Terminal: `ls /usr/local/bin/python3.7`. If it prints out `/usr/local/bin/python3.7`, you are good.
 
-4. If you do not have Homebrew installed, install it from https://brew.sh. (You can check if it is installed by typing `which brew` in Terminal--if it is installed, it will print something like `/usr/local/bin/brew`.)
-
-5. Clone this repo in whatever directory you would like:
+4. Clone this repo in whatever directory you would like:
 
     ```bash
     cd ~/Documents  # replace "Documents" with your desired directory
     git clone https://github.com/josephcappadona/sphero-project.git
     ```
 
-6. Navigate into the repository and create a Python virtual environment:
+5. Navigate into the repository and create a Python virtual environment:
 
     ```bash
     cd sphero-project
@@ -39,13 +39,23 @@ Once it is installed, open Terminal, run `xcode-select --install`, and follow th
 
     IMPORTANT: Every time you begin to do work in this library, you must run `source virtualenv/bin/activate` in Terminal to activate your virtual environment (you must do this for each Terminal instance you are running); if you do not, it is possible you will use a different version of Python or incorrect versions of important dependencies. When you are done working with this package, run `deactivate` in Terminal to deactivate the virtual environment so that you do not accidentally modify it when doing unrelated work.
 
-7. Set your virtual environment's PATH variable:
+6. Set your virtual environment's PATH variable:
 
     ```bash
     export PATH=`pwd`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
     ```
 
     Your shell's PATH variable "is basically a list of directories your computer looks through to find a requested executable" (you can read more about it here: https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4).
+
+7. Install yarn in your virtual environment:
+
+    ```bash
+    wget https://yarnpkg.com/latest.tar.gz
+    tar xfz latest.tar.gz
+    mv yarn-*/lib/* virtualenv/lib/
+    mv yarn-*/bin/* virtualenv/bin/
+    rm -r latest.tar.gz yarn-*
+    ```
 
 8. Set up Node.js within your virtual environment:
 
@@ -70,48 +80,125 @@ Once it is installed, open Terminal, run `xcode-select --install`, and follow th
     yarn rebuild
     ```
 
-11. Test that the Sphero server will launch:
+#### Linux
 
+These instructions will assume you are using a Debian-based Linux distro (Ubuntu, Arch, Fedora). If you are not, then the steps which use a package manager (0 and 4)to install dependencies will need to be translated for your ditro's package manager.
+
+0. Install Python:
     ```bash
-    cd ../examples
-    sudo yarn server
+    sudo apt-get install python3.7 python3.7-venv
     ```
 
-    If it works, you will see `Listening...`. For instructions on how to actually use this server, see [below](#usage).
-
-12. To test the Python client (the program you will use to send commands to the JavaScript server), leave the server from Step 11 running and open up a new Terminal, navigate to where you cloned this project, and activate your virtual environment:
-
+1. Clone this repository in whatever directory you would like and grant your user ownership:
     ```bash
-    cd ~/Documents/sphero-project  # Replace "Documents" with the location you cloned this repository
+    cd ~/Documents  # replace "Documents" with your desired directory
+    git clone https://github.com/josephcappadona/sphero-project.git
+    sudo chown -R `whoami` sphero-project
+    ```
+
+2. Navigate into the repository and create a Python virtual environment:
+    ```bash
+    cd sphero-project
+    /usr/local/bin/python3.7 -m venv virtualenv
     source virtualenv/bin/activate
+    python -m pip install --upgrade pip
     ```
 
-    Then, navigate into the `src` directory and launch a Python REPL:
+    If you have never used virtual environments before, you can read about them here: https://docs.python.org/3/tutorial/venv.html. Essentially, a virtual environment creates a sandbox in which you can install and manage dependencies without affecting dependencies used in other projects.
+
+    IMPORTANT: Every time you begin to do work in this library, you must run source virtualenv/bin/activate in Terminal to activate your virtual environment (you must do this for each Terminal instance you are running); if you do not, it is possible you will use a different version of Python or incorrect versions of important dependencies. When you are done working with this package, run deactivate in Terminal to deactivate the virtual environment so that you do not accidentally modify it when doing unrelated work.
+
+3. Set your virtual environment's PATH variable:
 
     ```bash
-    cd src
-    python
+        export PATH=`pwd`/virtualenv/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
+            ```
+
+    Your shell's PATH variable "is basically a list of directories your computer looks through to find a requested executable" (you can read more about it here: https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4).
+
+4. Install yarn in your virtual environment:
+
+    ```bash
+    wget https://yarnpkg.com/latest.tar.gz
+    tar xfz latest.tar.gz
+    mv yarn-*/lib/* virtualenv/lib/
+    mv yarn-*/bin/* virtualenv/bin/
+    rm -r latest.tar.gz yarn-*
     ```
 
-    Run these commands:
 
-    ```python
-    from client import DroidClient
-    droid = DroidClient()
-    droid.scan()  # Scan the area for droids
-    droid.connect_to_droid('D2-55A2')  # Replace 'D2-55A2' with your droid's identifier
-    droid.disconnect()
-    droid.quit()
-    exit()
+5. Set up Node.js within your virtual environment:
+
+    ```bash
+    python -m pip install nodeenv
+    nodeenv -p --node=10.15.3
     ```
 
-    If it is working, you should receive no errors, and your R2D2 should do a funny little animation once you connect to him. For more details on how to use this Python client, see [below](#start-client).
+6. Install the required Python dependencies:
 
-### Windows & Linux
+    ```bash
+    python -m pip install numpy pygame
+    ```
 
-We have not been able to test the Spherov2.js library on Windows or Linux; however, if you follow along with the Python-specific parts of the [Mac OS setup instructions](#mac-os) and translate the terminal commands into commands that are supported by your OS (e.g., `apt-get` instead of `brew`), it should not be difficult to get Python up and running such that you can utilize the [Python client](#start-client) with the [GUI Sandbox](#gui) detailed below.
+7. Install the required JavaScript dependencies and compile the Spherov2.js library:
+
+    ```bash
+    cd spherov2.js
+    sudo yarn install
+    cd lib
+    yarn rebuild
+    ```
+
+#### Windows
+
+We have not been able to test the Spherov2.js library on Windows; however, if you follow along with the Python-specific parts of the [Mac OS setup instructions](#mac-os) and translate the terminal commands into commands that are supported by your OS (e.g., `apt-get` instead of `brew`), it should not be difficult to get Python up and running such that you can utilize the [Python client](#start-client) with the [GUI Sandbox](#gui) detailed below.
 
 If you'd like to help us get this working, please reach out to me or CCB!
+
+
+### Testing Your Installation
+
+#### Server
+
+To test the Sphero server, navigate to `sphero-project/spherov2.js/examples` and run the following command (remember to activate your virtual environment first if necessary):
+
+```bash
+sudo yarn server
+```
+
+If it works, you will see `Listening...`. For instructions on how to actually use this server, see [below](#usage).
+
+
+#### Client
+
+To test the Python client (the program you will use to send commands to the JavaScript server), leave the server running and open up a new Terminal, navigate to where you cloned this project, and activate your virtual environment:
+
+```bash
+cd ~/Documents/sphero-project  # Replace "Documents" with the location you cloned this repository
+source virtualenv/bin/activate
+```
+
+Then, navigate into the `src` directory and launch a Python REPL:
+
+```bash
+cd src
+python
+```
+
+Then, run these commands:
+
+```python
+from client import DroidClient
+droid = DroidClient()
+droid.scan()  # Scan the area for droids
+droid.connect_to_droid('D2-55A2')  # Replace 'D2-55A2' with your droid's identifier
+droid.disconnect()
+droid.quit()
+exit()
+```
+
+If it is working, you should receive no errors, and your droid should do a funny little animation once you connect to him. For more details on how to use this Python client, see [below](#start-client).
+
 
 ## Usage
 
