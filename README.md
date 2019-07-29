@@ -151,9 +151,7 @@ These instructions will assume you are using a Debian-based Linux distro (Ubuntu
 
 #### Windows
 
-We have not been able to test the Spherov2.js library on Windows; however, if you follow along with the Python-specific parts of the [Mac OS setup instructions](#mac-os) and translate the terminal commands into commands that are supported by your OS (e.g., `apt-get` instead of `brew`), it should not be difficult to get Python up and running such that you can utilize the [Python client](#start-client) with the [GUI Sandbox](#gui) detailed below.
-
-If you'd like to help us get this working, please reach out to me or CCB!
+A windows installation guide is almost complete, but still needs to be tested. If you'd like to help us test it, please reach out to me or CCB!
 
 
 ### Testing Your Installation
