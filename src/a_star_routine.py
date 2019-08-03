@@ -33,6 +33,7 @@ start = (0,0)
 # ☑   ☐ ══☐   ☒
 goal = (3,0)
 speed = 0x88  # half speed
+<<<<<<< HEAD
 
 while True:
 
