@@ -2,13 +2,6 @@ from collections import defaultdict
 from itertools import product
 from collections import defaultdict
 
-obstacles = [
-    ((0,0), (1,0)),
-    ((1,0), (1,1))
-]
-
-g = Graph(obstacles)
-
 class Graph:
     # obstacle = { (row, col): True }
     def __init__(self, obstacles):
@@ -17,19 +10,21 @@ class Graph:
 
         self.V = list(product(range(self.row), range(self.col)))
 
-        offsets = ((1, 0), (0, 1), (0, -1), (-1, 0),
-                   (-1, 1), (1, 1), (-1, -1), (1, -1))
+        offsets = ((1,0), (0,1), (-1, 0), (0, -1))
         E = []
         for u_x in range(self.col):
             for u_y in range(self.row):
+                # print("--{0}".format((u_x, u_y)))
                 for offset_row, offset_col in offsets:
-                    v_x, v_y = (r + offset_row, c + offset_col)
-                    if (0 <= u_x < self.row and 0 <= u_y < self.col and
-                        0 <= v_x < self.row and 0 <= v_y < self.col and
-                        not obstacles[(v_x, v_y)]:
-                        edges.append(
+                    v_x, v_y = (u_x + offset_row, u_y + offset_col)
+                    if (0 <= u_x < self.col and 0 <= u_y < self.row and 
+                        0 <= v_x < self.col and 0 <= v_y < self.row and  
+                            not obstacles[(u_x, u_y), (v_x, v_y)]):
+                        E.append(
                             ((u_x, u_y), (v_x, v_y))
                         )
+                    # else:
+                    #     print(((u_x, u_y), (v_x, v_y)))
 
         neighborhood = defaultdict(set)
         for (u,v) in E:

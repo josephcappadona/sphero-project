@@ -6,58 +6,46 @@ from a_star import A_star
 import maneuver
 
 
-# connect to Sphero
+class HorizontalBadAgent:
+    def __init__(self, droid_name, position, min_bound, max_bound):
+        self.position = position
+        self.min_bound = min_bound
+        self.max_bound = max_bound
+
+        droid_client = DroidClient()
+        droid_client.scan()
+        droid_client.connect_to_droid(droid_name)
+        self.droid_client = droid_client
+    
+    def move(self):
+        x, y = self.position
+        direction = 1 if (self.max_bound[0] - x) > 0 else -1
+        maneuver.follow_path(
+            self.droid_client, 
+            [self.position, (x + direction, y)],
+            speed = 0x88)
+
+# get course, find path
+G = courses.football_field
 agent_droid = DroidClient()
 agent_droid.scan()
 agent_droid.connect_to_droid('Q5-8CC0') # Agent
+enemy_droid = HorizontalBadAgent('D2-0709', position = (3, 3), 
+    min_bound = (3, 3), max_bound = (5, 3))
 
-bad_droid_1 = DroidClient()
-bad_droid_1.scan()
-bad_droid_1.connect_to_droid('Q5-ACC0') # Bad Agent 1
-
-bad_droid_2 = DroidClient()
-bad_droid_2.scan()
-bad_droid_2.connect_to_droid('Q5-8CC0') # Bad Agent 2
-
-# get course, find path
-G = courses.grid_1
-start = (0,0)
-enemy1 = (3, 3)
-enemy1_bound = (5, 6)
-
-enemy2 = (4, 4)
-enemy2_bound = (3, 4)
-# ☑ =start node, ☒ =goal node
-# ☐ ══☐   ☐ ══☐
-# ║   ║   ║   ║
-# ☐   ☐ ══☐   ☐
-# ║   ║   ║   ║
-# ☐ ══☐   ☐ ══☐
-# ║       ║   ║
-# ☑   ☐ ══☐   ☒
-goal = (3,0)
-speed = 0x88  # half speed
-
-
+agent_start = (0, 0)
+agent_goal = (0, 7)
 while True:
-
+    if(agent_start == agent_goal):
+        break
+    
     #  AGENT
-    path = A_star(G, start, goal)
-    path =  path[0:2]
-    maneuver.follow_path(agent_droid, path, speed, scale_dist = 0.75)#dist_constant=0.75)
-
-    G.update(new_obstacles, free_edges)
-
+    path = A_star(G, agent_start, agent_goal)
+    path = path[0:2]
+    agent_start = path[1]
+    print("move: {0}".format(path))
+    maneuver.follow_path(agent_droid, path, speed = 0x88, scale_dist = 1)
+    
+    print("move enemy")
     # BAD DROID 1
-    dest1 = G.move_enemy(enemy1, enemy1_bound)
-    maneuver.follow_path(bad_droid_1, [enemy2, dest2], speed, scale_dist = 0.75)#dist_constant=0.75)
-    enemy1 = dest1
-
-    G.update(new_obstacles, free_edges)
-
-    # BAD DROID 2
-    dest2 = G.move_enemy(enemy1, enemy1_bound)
-    maneuver.follow_path(bad_droid_2, [enemy3, dest3], speed, scale_dist = 0.75)#dist_constant=0.75)
-    enemy2 = dest2
-
-    G.update(new_obstacles, free_edges)
+    enemy_droid.move()
