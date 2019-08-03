@@ -27,6 +27,6 @@ path = A_star(G, start, goal)
 
 # traverse path
 speed = 0x88  # half speed
-maneuver.follow_path(droid, path, speed, dist_constant=0.75)
+maneuver.follow_path(droid, path, speed, scale_dist=0.75)
 droid.animate(10)
 droid.quit()
