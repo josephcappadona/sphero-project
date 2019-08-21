@@ -75,10 +75,14 @@ class DroidClient:
             print('Response: ' + response)
         return response
 
-    def scan(self):
+    def scan(self, returnType = None):
         command = 'scan'
         scanning_response = self.send_and_receive(command)
         discovered_response = self.wait_for_response()
+        if returnType == 'dic':
+        	return str2dic(discovered_response)
+        elif returnType == 'list':
+        	return dic2list(str2dic(discovered_response))
         return (scanning_response != '') and (discovered_response != '')
 
     def connect_to_droid(self, name):
@@ -433,5 +437,39 @@ class DroidClient:
             print('Heading: %d' % next_angle)
         print()
         return False, next_speed, next_angle
+
+def str2dic(response):
+	Robot_info = response.split('.')[-1].split('\n\n')
+	Robot_dic = {}
+	if len(Robot_info) == 3:
+		R2Q5s_robot_info_list = Robot_info[-1].split('R2Q5s:\n\t')[-1].split('\n\t')
+		R2D2s_robot_info_list = Robot_info[-2].split('R2D2s:\n\t')[-1].split('\n\t')
+		Robot_dic['R2D2s'] = compute_info(R2D2s_robot_info_list)
+		Robot_dic['R2Q5s'] = compute_info(R2Q5s_robot_info_list)
+	elif len(Robot_info) == 2:
+		exist_type = Robot_info[-1][0:5]
+		exist_type_info_list = Robot_info[-1].split(exist_type + ':\n\t')[-1].split('\n\t')
+		Robot_dic[exist_type] = compute_info(exist_type_info_list)
+	else:
+		Robot_dic = {}
+	return Robot_dic
+
+def dic2list(dic):
+	result = []
+	for key in dic:
+		for sub_key in dic[key]:
+			result.append(sub_key)
+	return result
+
+def compute_info(info_list):
+	result = {}
+	for info in info_list:
+		target = info.split(': ')
+		if len(target) == 1:
+			current_robot = info
+			result[current_robot] = {}
+		else:
+			result[current_robot][target[0].replace('\t', '')] = target[1]
+	return result
 
 
